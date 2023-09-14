@@ -1,0 +1,756 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "BackEnd",
+    "version": "1.0"
+  },
+  "paths": {
+    "/ping":  {
+      "get": {
+        "tags": [
+          "test"
+        ],
+        "description": "test if server is running or not",
+        "responses": {
+          "200": {
+            "description": "server is running"
+          }
+        }
+      }
+    },
+
+    "/signin": {
+      "post": {
+        "tags": [
+          "user-system"
+        ],
+        "description": "common sign in service using a user identifier(username, phone, email, uid, etc.) & password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "signInParam",
+                "description": "normal sign in param using name/email/phone/uid & pwd",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "username or email or phone or uid (yes, uuid-generated user id, aka uid)"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "login success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "sign in response",
+                  "description": "containing values client needed for 'auto-signin' action",
+                  "type": "object",
+                  "properties": {
+                    "userId": {
+                      "type": "integer",
+                      "description": "uid for this user"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "hashcode, for client to 'auto-signin'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "auto sign in fail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auto-signin": {
+      "post": {
+        "tags": [
+          "user-system"
+        ],
+        "description": "auto sign in service, using uid and a code to signin. since the code is the hash of user info, front-end could simply store it in user's browser.",
+
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "autoSignInParam",
+                "description": "auto sign in param, using uid & code",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "user id"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "provided by server the last time client signin"
+                  }
+                }
+              }
+            }
+          }
+
+        },
+        "responses": {
+          "200": {
+            "description": "auto sign in success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "the code client should save for next auto-signin session"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "login fail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verify": {
+      "post": {
+        "tags": [
+          "user-system"
+        ],
+        "description": "send verify message",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "description": "user name, using for friendly greetings",
+                    "type": "string"
+                  },
+                  "contact": {
+                    "description": "user phone or email",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "tags": [
+          "user-system"
+        ],
+        "description": "sign up a user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "contact": {
+                    "type": "string",
+                    "description": "email or phone"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "verify code"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "login fail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userinfo": {
+      "get": {
+        "tags": [
+          "user-system"
+        ],
+        "description": "",
+        "parameters": [{
+          "in": "path",
+          "required": true,
+          "name": "user",
+          "content": {
+            "text/plain": {
+                "schema": {
+                    "type": "integer",
+                    "description": "user id"
+                }
+            }
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/userInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User Not Found",
+            "content": {
+                "application/json": {
+                    "schema": {
+                    "$ref": "#/components/schemas/errCode"
+                    }
+                }
+            }
+          }
+        }
+      }
+    },
+
+    "/goods/publish": {
+      "post": {
+        "description": "publish a new goods",
+        "tags": [
+          "goods-system"
+        ],
+        "parameters": [{
+            "in": "header",
+            "name": "X-User-Id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "user id"
+            }
+        },{
+            "in": "header",
+            "name": "X-User-Code",
+            "required": true,
+            "schema": {
+                "type": "string",
+                "description": "user code"
+            }
+        }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "goodsName": {
+                    "type": "string"
+                  },
+                  "validDate": {
+                    "type": "integer",
+                    "description": "valid date in epoch seconds"
+                  },
+                  "money": {
+                    "type": "integer",
+                    "description": "price in cents"
+                  },
+                  "keywords": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "keywords, shall includes goods name"
+                    }
+                  },
+                  "goodsType": {
+                    "type": "string",
+                    "description": "one of ( OBJECT, FAVOR, ANY )"
+                  },
+                  "ioType": {
+                    "type": "string",
+                    "description": "one of ( SELLING, ACQUISITION, ANY )"
+                  },
+                  "tags": {
+                    "type": "string",
+                    "description": "tags, separated by semicolon ';' "
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "description": "goods id"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/goods/remove": {
+      "delete": {
+        "description": "remove a goods",
+        "tags": [
+          "goods-system"
+        ],
+        "parameters": [{
+          "in": "header",
+          "name": "X-User-Id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "description": "user id"
+          }
+        },{
+          "in": "header",
+          "name": "X-User-Code",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "user code"
+          }
+        }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "description": "goods id"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+             }
+          }
+        }
+      }
+    },
+    "/goods/icon": {
+      "get": {
+        "description": "get goods icon",
+        "tags": [
+          "goods-system"
+        ],
+        "parameters": [{
+          "in": "path",
+          "name": "GoodsId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "description": "goods id"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Goods Not Found"
+          }
+        }
+      },
+      "put": {
+        "description": "upload goods icon",
+        "tags": [
+          "goods-system"
+        ],
+        "parameters": [{
+          "in": "header",
+          "name": "X-Goods-Id",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "description": "goods id"
+          }
+        },{
+          "in": "header",
+          "name": "X-User-Id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "user id"
+          }
+        },{
+          "in": "header",
+          "name": "X-User-Code",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "user code"
+          }
+        }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icon": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/info": {
+      "get": {
+        "tags": [
+          "goods-system"
+        ],
+        "parameters": [{
+          "in": "path",
+          "name": "goodsIds",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "description": "goods ids, separated by semicolon ';', note that non-exist or invalid goods id is also acceptable"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "a dictionary, key is goods id, value is goods info",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "price": {
+                        "description": "price in cents",
+                        "type": "integer"
+                      },
+                      "publisherType": {
+                        "description": "one of ( STUDENT, COMPANY )",
+                        "type": "string"
+                      },
+                      "ioType": {
+                        "description": "one of ( SELLING, ACQUISITION )",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query": {
+      "get": {
+        "description": "fetch latest goods, or search goods by keywords",
+        "tags": [
+          "goods-system"
+        ],
+        "parameters": [{
+          "in": "path",
+          "required": false,
+          "name": "keywords",
+          "schema": {
+            "type": "string",
+            "description": "keywords, separated by semicolon ';'"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "a array of query results",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "description": "query result, containing goods id, goods score, and keywords info of each goods",
+                    "properties": {
+                        "goodsId": {
+                            "type": "integer"
+                        },
+                        "score": {
+                            "type": "integer",
+                            "description": "score of this goods, higher score means more relevant to the keywords. note that ret.score = sum(ret.keywords.values())"
+                        },
+                        "keywords": {
+                            "type": "object",
+                            "description": "the weight of this keyword in this goods.",
+                            "additionalProperties": {
+                              "type": "number",
+                              "description": " score = keywords_fit_time / keywords_total_match_times / keywords_appear_count"
+                            }
+                        }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/group/redirect": {
+      "get": {
+        "description": "get group id by goods id",
+        "tags": [
+          "group-system"
+        ],
+        "parameters": [{
+          "in": "path",
+          "name": "goodsId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "description": "goods id"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "description": "group id"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+             }
+          },
+          "404": {
+            "description": "Goods Not Found",
+            "content": {
+                "application/json": {
+                    "schema": {
+                    "$ref": "#/components/schemas/errCode"
+                    }
+                }
+            }
+          }
+        }
+      }
+    },
+    "/group/seller": {
+      "get": {
+        "description": "get seller id by group id",
+        "tags": [
+          "group-system"
+        ],
+        "parameters": [{
+          "in": "path",
+          "name": "groupId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "description": "group id"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "description": "seller id"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Err",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errCode"
+                }
+              }
+             }
+          },
+          "404": {
+            "description": "Group Not Found",
+            "content": {
+                "application/json": {
+                    "schema": {
+                    "$ref": "#/components/schemas/errCode"
+                    }
+                }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "userInfoResponse": {
+        "title": "user info response",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "user name"
+          },
+          "type": {
+            "type": "string",
+            "description": "user type, one of UNKNOWN, STUDENT and COMPANY"
+          }
+        }
+      },
+      "errCode": {
+        "title": "err code",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

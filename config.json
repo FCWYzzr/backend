@@ -1,0 +1,37 @@
+{
+    "hashMethod": "md5",
+    "resource": "data/",
+    "verification": {
+        "expireTime": 5,
+        "timeUnit": "MINUTE"
+    },
+    "smtp": {
+        "server": "smtp.163.com",
+        "port": 25,
+        "mail": "yunchi_market@163.com",
+        "password": "YPCALAEGUIAUMRTJ",
+        "htmlPattern": "mail.html"
+    },
+    "server": {
+        "baseUrl": "127.0.0.1",
+        "port": 8080,
+        "areaId": 0,
+        "machineId": 0,
+        "friendDomain": "*"
+    },
+    "databaseConfig": {
+        "url": "jdbc:sqlite:yunchi.db",
+        "name": null,
+        "password": null
+    },
+    "adminConfig": {
+        "name": "",
+        "password": ""
+    },
+    "thirdParty": {
+        "weChat": {
+            "appid": "",
+            "appKey": ""
+        }
+    }
+}

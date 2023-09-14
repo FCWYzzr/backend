@@ -4,6 +4,7 @@ package com.yunchi.core.item_system
 
 import com.yunchi.Config
 import com.yunchi.configure
+import com.yunchi.core.protocol.MessageChunk
 import com.yunchi.core.protocol.PublishArgument
 import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.protocol.receiveJson
@@ -17,10 +18,13 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.ktorm.dsl.*
 import java.io.File
 import java.time.Instant
@@ -238,6 +242,16 @@ fun Route.configurePublish(){
 
         Database.delete(GroupMessageTable){
             GroupMessageTable.groupId eq group
+        }
+
+        if (RecordGroup.containsKey(group)){
+            val msg = Json.encodeToString(MessageChunk(
+                -1, "商品已下架", Instant.now().epochSecond
+            ))
+            RecordGroup[group]!!.forEach {
+                it.key.send(msg)
+            }
+            RecordGroup.remove(group)
         }
 
         call.respond(HttpStatusCode.OK)

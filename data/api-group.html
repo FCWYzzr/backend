@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API-Group</title>
+    <link rel="stylesheet" href="https://picnicss.com/style.min.css">
+</head>
+<body>
+<article>
+    <h1>How to use '/group' to chat in a group?</h1>
+    <ul class="card">
+        <li>connect to "/group" using 'ws' protocol</li>
+        <li>ready to receive any <a href="#history">message chunk</a> from server</li>
+        <li>send a <a href="#fetch">fetch packet</a> to server</li>
+        <li>wrap message to a <a href="#message">message packet</a>, then send it</li>
+        <li>want to quit? just close websocket normally</li>
+        <li><b>REMEMBER, YOU WON'T RECEIVE YOUR OWN MESSAGE CHUNK</b>, so just send & render it, no need to wait for server</li>
+    </ul>
+</article>
+<table id="history">
+    <caption>message chunk</caption>
+    <thead>
+    <tr>
+        <th>field</th>
+        <th>type</th>
+        <th>description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>senderId</td>
+        <td>number (long)</td>
+        <td>sender's id</td>
+    </tr>
+    <tr>
+        <td>content</td>
+        <td>string</td>
+        <td>message's content</td>
+    </tr>
+    <tr>
+        <td>time</td>
+        <td>number (long)</td>
+        <td>timestamp as epoch <b>SECONDS</b>, so don't forget to *1000</td>
+    </tr>
+    </tbody>
+</table>
+<p>
+&emsp;// for example<br>
+&emsp;{<br>
+&emsp;&emsp;"senderId": 1,<br>
+&emsp;&emsp;"content": "hello world",<br>
+&emsp;&emsp;"time": 1234567890<br>
+&emsp;}<br>
+</p>
+
+<table id="fetch">
+    <thead>
+    <tr>
+        <th>field</th>
+        <th>type</th>
+        <th>description</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>userId</td>
+        <td>number (long)</td>
+        <td>your id</td>
+    </tr>
+    <tr>
+        <td>code</td>
+        <td>string</td>
+        <td>your code(see <a href="/api#api-UserSystem-autoSigninPost" target="_blank">auto signin</a>)</td>
+    </tr>
+    <tr>
+        <td>groupId</td>
+        <td>number (long)</td>
+        <td>group's id(see <a href="/api#api-GroupSystem-groupRedirectGet" target="_blank">group redirect</a>)</td>
+    </tr>
+    <tr>
+        <td>fromTime</td>
+        <td>number (long)</td>
+        <td>timestamp as epoch <b>SECONDS</b>, so don't forget to *1000</td>
+    </tr>
+    </tbody>
+</table>
+<p>
+&emsp;// for example<br>
+&emsp;{<br>
+&emsp;&emsp;"userId": 1,<br>
+&emsp;&emsp;"code": "123456",<br>
+&emsp;&emsp;"groupId": 1,<br>
+&emsp;&emsp;"fromTime": 1234567890<br>
+&emsp;}<br>
+</p>
+
+<table id="message">
+    <thead>
+    <tr>
+        <th>field</th>
+        <th>type</th>
+        <th>description</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>content</td>
+        <td>string</td>
+        <td>message's content</td>
+    </tr>
+    <tr>
+        <td>time</td>
+        <td>number (long)</td>
+        <td>timestamp in epoch seconds, you can use 'parseInt(new Date().valueOf()/1000)' to get it</td>
+    </tr>
+    </tbody>
+</table>
+<p>
+&emsp;// for example<br>
+&emsp;{<br>
+&emsp;&emsp;"content": "hello world",<br>
+&emsp;&emsp;"time": 1234567890<br>
+&emsp;}<br>
+</p>
+</body>
+<style>
+p{
+    width: max-content;
+    border-collapse: separate;
+    border-width: thick;
+    border-color: #0e0e0e;
+    border-style: solid;
+    background: darkgrey;
+}
+caption{
+    font-size: xx-large;
+    font-weight: bold;
+}
+ul{
+    width: fit-content;
+}
+body{
+    padding-left: 10%;
+}
+</style>
+</html>

@@ -2,7 +2,8 @@
   "openapi": "3.0.2",
   "info": {
     "title": "BackEnd",
-    "version": "1.0"
+    "version": "1.0",
+    "description": "for web socket doc, see /api-group"
   },
   "paths": {
     "/ping":  {

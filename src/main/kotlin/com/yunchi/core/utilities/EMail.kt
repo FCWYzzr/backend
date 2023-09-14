@@ -33,7 +33,7 @@ object EMailVerifier{
     """.trimIndent()
 
     private val pattern = Files.readString(Path.of(
-        Config.smtp.htmlPattern
+        Config.resource + Config.smtp.htmlPattern
     )).replace("[email]", Config.smtp.mail)
         .replace("[expireTime]", Config.verification.expireTime.toString())
         .replace("[timeUnit]", Config.verification.timeUnit.literal)

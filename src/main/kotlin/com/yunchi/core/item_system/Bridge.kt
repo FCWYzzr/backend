@@ -3,7 +3,9 @@ package com.yunchi.core.item_system
 import com.yunchi.core.protocol.MessageArgument
 import com.yunchi.core.protocol.MessageChunk
 import com.yunchi.core.protocol.MessageQueryArgument
-import com.yunchi.core.protocol.orm.*
+import com.yunchi.core.protocol.orm.Database
+import com.yunchi.core.protocol.orm.GoodsGroupRedirectTable
+import com.yunchi.core.protocol.orm.GroupMessageTable
 import com.yunchi.core.protocol.respondErr
 import com.yunchi.core.user_system.checkCode
 import io.ktor.http.*
@@ -15,8 +17,6 @@ import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ChannelIterator
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
@@ -24,15 +24,16 @@ import kotlinx.serialization.json.Json
 import org.ktorm.dsl.*
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.filterNotNull
+import kotlin.collections.firstOrNull
 import kotlin.collections.forEach
 import kotlin.collections.set
 
-
+val RecordGroup = ConcurrentHashMap<
+    Long,
+    ConcurrentHashMap<WebSocketServerSession, Unit>
+    >()
 fun Route.configureBridge(){
-    val recordGroup = ConcurrentHashMap<
-        Long,
-        ConcurrentHashMap<WebSocketServerSession, Unit>
-        >()
     get("/group/redirect"){
         val goodsId = call.parameters["goodsId"]
             .orEmpty().toLongOrNull()
@@ -81,10 +82,10 @@ fun Route.configureBridge(){
                     "Invalid Code"
                 ))
 
-            recordGroup[group]?.set(this, Unit)
+            RecordGroup[group]?.set(this, Unit)
                 ?: run {
-                    recordGroup[group] = ConcurrentHashMap()
-                    recordGroup[group]!![this] = Unit
+                    RecordGroup[group] = ConcurrentHashMap()
+                    RecordGroup[group]!![this] = Unit
                 }
 
             val timestamp = Instant.ofEpochSecond(info.fromTime ?: 0)
@@ -125,7 +126,7 @@ fun Route.configureBridge(){
                         }
                 }
 
-                recordGroup[group]!!
+                RecordGroup[group]!!
                     .keys()
                     .asSequence()
                     .filter { it != this }
@@ -146,7 +147,7 @@ fun Route.configureBridge(){
         }
         finally {
             if (group != null)
-                recordGroup[group]!!.remove(this)
+                RecordGroup[group]!!.remove(this)
         }
 
     }

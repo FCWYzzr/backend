@@ -1,16 +1,13 @@
 package com.yunchi.core.item_system
 
-import com.yunchi.core.protocol.MessageArgument
-import com.yunchi.core.protocol.MessageChunk
-import com.yunchi.core.protocol.MessageQueryArgument
+import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.Database
 import com.yunchi.core.protocol.orm.GoodsGroupRedirectTable
 import com.yunchi.core.protocol.orm.GroupMessageTable
-import com.yunchi.core.protocol.respondErr
 import com.yunchi.core.user_system.checkCode
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.*
@@ -47,7 +44,7 @@ fun Route.configureBridge(){
             .firstOrNull()
             ?: return@get call.respondErr("Goods not found", HttpStatusCode.NotFound)
 
-        call.respondText(groupId.toString())
+        call.respondJson(GroupResponse(groupId))
     }
 
     get("/group/seller"){
@@ -66,7 +63,7 @@ fun Route.configureBridge(){
             .firstOrNull()
             ?: return@get call.respondErr("Group not found", HttpStatusCode.NotFound)
 
-        call.respondText(seller.toString())
+        call.respondJson(UserResponse(seller))
     }
 
     webSocket("/group"){

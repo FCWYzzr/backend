@@ -127,7 +127,7 @@ fun Routing.configureSignIn(){
                 where { it.id eq param.userId }
             }
 
-        call.respondText(newCode)
+        call.respondJson(CodeResponse(newCode))
     }
 }
 

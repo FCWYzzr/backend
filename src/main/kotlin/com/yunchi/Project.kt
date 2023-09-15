@@ -206,7 +206,7 @@ private fun Connection.nopClose(): Connection {
 }
 
 fun ApplicationResponse.configure(vararg headers: String = arrayOf("*")){
-    this.header("Access-Control-Allow-Origin", Config.server.friendDomain)
+    this.header("Access-Control-Allow-Origin", "*")
     this.header("Access-Control-Allow-Headers", headers.joinToString(
         ", "
     ))

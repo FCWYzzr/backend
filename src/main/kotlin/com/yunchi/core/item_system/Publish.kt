@@ -4,11 +4,8 @@ package com.yunchi.core.item_system
 
 import com.yunchi.Config
 import com.yunchi.configure
-import com.yunchi.core.protocol.MessageChunk
-import com.yunchi.core.protocol.PublishArgument
+import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.*
-import com.yunchi.core.protocol.receiveJson
-import com.yunchi.core.protocol.respondErr
 import com.yunchi.core.user_system.checkCode
 import com.yunchi.core.utilities.genSnowflake
 import com.yunchi.dirIfNotExist
@@ -17,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
@@ -123,7 +121,7 @@ fun Route.configurePublish(){
                 set(it.reference, 0)
             }
 
-        call.respondText(goodId.toString())
+        call.respondJson(GoodsResponse(goodId))
     }
     put("/goods/icon"){
         call.response.configure("X-Goods-Id", "X-User-Id", "X-User-Code")

@@ -6,12 +6,10 @@ import com.yunchi.core.protocol.orm.UserType
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import io.ktor.utils.io.core.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.ktorm.dsl.QueryRowSet
-import java.time.Instant
 
 typealias SigninResponse = AutoSignInArgument
 
@@ -44,6 +42,26 @@ data class MessageChunk(
     val senderId: Long,
     val content: String,
     val time: Long
+)
+
+@Serializable
+data class GroupResponse(
+    val groupId: Long
+)
+
+@Serializable
+data class CodeResponse(
+    val code: String
+)
+
+@Serializable
+data class GoodsResponse(
+    val goodsId: Long
+)
+
+@Serializable
+data class UserResponse(
+    val userId: Long
 )
 
 @Serializable

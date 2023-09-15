@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode")
 
-package com.yunchi.core.item_system
+package com.yunchi.core.goods_system
 
 import com.yunchi.Config
 import com.yunchi.configure

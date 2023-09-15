@@ -1,4 +1,4 @@
-package com.yunchi.core.item_system
+package com.yunchi.core.goods_system
 
 import com.yunchi.configure
 import com.yunchi.core.protocol.GoodsDetail

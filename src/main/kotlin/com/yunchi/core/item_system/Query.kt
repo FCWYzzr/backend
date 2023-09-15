@@ -3,10 +3,7 @@ package com.yunchi.core.item_system
 import com.yunchi.configure
 import com.yunchi.core.protocol.GoodsDetail
 import com.yunchi.core.protocol.QueryArgument
-import com.yunchi.core.protocol.orm.AttributeInfoTable
-import com.yunchi.core.protocol.orm.Database
-import com.yunchi.core.protocol.orm.GoodsAttributeTable
-import com.yunchi.core.protocol.orm.GoodsTable
+import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.protocol.respondErr
 import com.yunchi.core.protocol.respondJson
 import io.ktor.server.application.*
@@ -41,7 +38,7 @@ fun Route.configureQuery(){
     get("/query"){
         call.response.configure()
         val query = QueryArgument.of(call.parameters)
-        val existKeywordsInfo = if (query.keywords != null)
+        val existKeywordsInfo = if (query.keywords.isEmpty())
             Database
             .from(AttributeInfoTable)
             .select()
@@ -63,21 +60,20 @@ fun Route.configureQuery(){
                 }
                 .toMap()
 
-        val filtered = Database
+        val keyFiltered = Database
             .from(GoodsAttributeTable)
             .select()
-            .where (
-                if(query.keywords != null)
+            .where(
+                if (query.keywords.isNotEmpty())
                     GoodsAttributeTable.goodsFactor inList query.keywords
                 else
                     GoodsAttributeTable.goodsFactor.isNotNull()
-            ).asIterable()
-            .map {
-                 it[GoodsAttributeTable.goodsId]!! to
-                     mutableListOf(it[GoodsAttributeTable.goodsFactor]!!)
-            }
-            .parallelStream()
-            .map{ mutableMapOf(it) }
+            ).map {
+                it[GoodsAttributeTable.goodsId]!! to
+                    mutableListOf(it[GoodsAttributeTable.goodsFactor]!!)
+            }.map {
+                hashMapOf(it)
+            }.stream().parallel()
             .reduce(HashMap()){ m1, m2 ->
                 for ((k, v) in m2){
                     if (k in m1.keys)
@@ -87,6 +83,37 @@ fun Route.configureQuery(){
                 }
                 m1
             }
+
+        val queryFiltered = Database
+            .from(GoodsTable)
+            .select()
+            .where {
+                val cond = mutableListOf(
+                    GoodsTable.id inList keyFiltered.keys,
+                    GoodsTable.validDate gt Instant.now()
+                )
+                if (query.goodsType != GoodsType.ANY)
+                    cond.add(GoodsTable.goodsType eq query.goodsType)
+                if (query.ioType != IOType.ANY)
+                    cond.add(GoodsTable.ioType eq query.ioType)
+                if (query.tags.isNotEmpty())
+                    query.tags.forEach {
+                        cond.add(GoodsTable.tags like "%$it%")
+                    }
+                if (query.goodsType != GoodsType.ANY)
+                    cond.add(GoodsTable.goodsType eq query.goodsType)
+
+                cond.reduce { c1, c2 -> c1 and c2 }
+            }
+            .limit(
+                query.perPage * query.page,
+                query.perPage
+            ).asIterable()
+            .map { it[GoodsTable.id] }
+            .toSet()
+
+        val filtered = keyFiltered
+            .filterKeys { it in queryFiltered }
             .entries.parallelStream()
             .map {(goodsId, keywords) ->
                 goodsId to Database
@@ -104,11 +131,11 @@ fun Route.configureQuery(){
                     }
                     .toMap()
             }
-            .sorted{p1, p2 ->
-                p1.second.values.sum().compareTo(p2.second.values.sum())
-            }
+
+
+
         call.respondJson(buildJsonArray {
-            filtered.forEach{(k, v) ->
+            filtered.forEach { (k, v) ->
                 add(buildJsonObject {
                     put("goodsId", JsonPrimitive(k))
                     put("score", JsonPrimitive(v.values.sum()))

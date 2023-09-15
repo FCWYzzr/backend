@@ -7,7 +7,6 @@ import com.yunchi.core.protocol.orm.GroupMessageTable
 import com.yunchi.core.user_system.checkCode
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.*
@@ -63,7 +62,7 @@ fun Route.configureBridge(){
             .firstOrNull()
             ?: return@get call.respondErr("Group not found", HttpStatusCode.NotFound)
 
-        call.respondJson(UserResponse(seller))
+        call.respondJson(SellerResponse(seller))
     }
 
     webSocket("/group"){

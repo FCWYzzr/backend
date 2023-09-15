@@ -70,14 +70,7 @@
             }
           },
           "400": {
-            "description": "auto sign in fail",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -97,7 +90,7 @@
                 "title": "autoSignInParam",
                 "description": "auto sign in param, using uid & code",
                 "properties": {
-                  "id": {
+                  "userId": {
                     "type": "string",
                     "description": "user id"
                   },
@@ -115,23 +108,22 @@
           "200": {
             "description": "auto sign in success",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "description": "the code client should save for next auto-signin session"
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "the code client should save for next auto-signin session"
+                    }
+                  }
+
                 }
               }
             }
           },
           "400": {
-            "description": "login fail",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -167,14 +159,7 @@
             "description": "OK"
           },
           "400": {
-            "description": "Err",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -214,14 +199,7 @@
             "description": "OK"
           },
           "400": {
-            "description": "login fail",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -235,7 +213,7 @@
         "parameters": [{
           "in": "path",
           "required": true,
-          "name": "user",
+          "name": "userId",
           "content": {
             "text/plain": {
                 "schema": {
@@ -257,24 +235,10 @@
             }
           },
           "400": {
-            "description": "Err",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           },
           "404": {
-            "description": "User Not Found",
-            "content": {
-                "application/json": {
-                    "schema": {
-                    "$ref": "#/components/schemas/errCode"
-                    }
-                }
-            }
+            "$ref": "#/components/responses/notFound"
           }
         }
       }
@@ -348,23 +312,21 @@
           "200": {
             "description": "OK",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "description": "goods id"
+                  "type": "object",
+                  "properties": {
+                    "goodsId": {
+                      "type": "integer",
+                      "description": "goods id"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Err",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -395,10 +357,15 @@
         "requestBody": {
           "required": true,
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
-                "type": "integer",
-                "description": "goods id"
+                "type": "object",
+                "properties": {
+                  "goodsId": {
+                    "type": "integer",
+                    "description": "goods id"
+                  }
+                }
               }
             }
           }
@@ -428,7 +395,7 @@
         ],
         "parameters": [{
           "in": "path",
-          "name": "GoodsId",
+          "name": "goodsId",
           "required": true,
           "schema": {
             "type": "integer",
@@ -437,20 +404,21 @@
         }],
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Err",
+            "description": "OK",
             "content": {
-              "application/json": {
+              "image/png": {
                 "schema": {
-                  "$ref": "#/components/schemas/errCode"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/err"
+          },
           "404": {
-            "description": "Goods Not Found"
+            "$ref": "#/components/responses/notFound"
           }
         }
       },
@@ -505,14 +473,7 @@
             "description": "OK"
           },
           "400": {
-            "description": "Err",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -564,14 +525,7 @@
             }
           },
           "400": {
-            "description": "Err",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-            }
+            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -582,15 +536,98 @@
         "tags": [
           "goods-system"
         ],
-        "parameters": [{
+        "parameters": [
+          {
           "in": "path",
-          "required": false,
+            "required": true,
+            "allowEmptyValue": true,
           "name": "keywords",
           "schema": {
             "type": "string",
             "description": "keywords, separated by semicolon ';'"
           }
-        }],
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "minCost",
+            "schema": {
+              "type": "integer",
+              "description": "min cost in cents, if not provide, this value will be set to 0"
+            }
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "maxCost",
+            "schema": {
+              "type": "integer",
+              "description": "max cost in cents, if not provide, this value will be set to integer max value"
+            }
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "publisher",
+            "schema": {
+              "type": "string",
+              "description": "publisher type, one of ( STUDENT, COMPANY; if not provide, this filter will be disabled )"
+            }
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "ioType",
+            "schema": {
+              "type": "string",
+              "description": "io type, one of ( SELLING, ACQUISITION; if not provide, this filter will be disabled )"
+            }
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "goodsType",
+            "schema": {
+              "type": "string",
+              "description": "goods type, one of ( OBJECT, FAVOR; if not provide, this filter will be disabled )"
+            }
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "tags",
+            "schema": {
+              "type": "string",
+              "description": "tags, separated by semicolon ';'"
+            }
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "description": "page number, start from 0, default value is 0"
+            }
+          },
+          {
+            "in": "path",
+            "required": true,
+            "allowEmptyValue": true,
+            "name": "perPage",
+            "schema": {
+              "type": "integer",
+              "description": "page size, default value is 10"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -647,10 +684,15 @@
           "200": {
             "description": "OK",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "description": "group id"
+                  "type": "object",
+                  "properties": {
+                    "groupId": {
+                      "type": "integer",
+                      "description": "group id"
+                    }
+                  }
                 }
               }
             }
@@ -666,14 +708,7 @@
              }
           },
           "404": {
-            "description": "Goods Not Found",
-            "content": {
-                "application/json": {
-                    "schema": {
-                    "$ref": "#/components/schemas/errCode"
-                    }
-                }
-            }
+            "$ref": "#/components/responses/notFound"
           }
         }
       }
@@ -697,39 +732,52 @@
           "200": {
             "description": "OK",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "integer",
-                  "description": "seller id"
+                  "type": "object",
+                  "properties": {
+                    "sellerId": {
+                      "type": "integer",
+                      "description": "seller id"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Err",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-             }
+            "$ref": "#/components/responses/err"
           },
           "404": {
-            "description": "Group Not Found",
-            "content": {
-                "application/json": {
-                    "schema": {
-                    "$ref": "#/components/schemas/errCode"
-                    }
-                }
-            }
+            "$ref": "#/components/responses/notFound"
           }
         }
       }
     }
   },
   "components": {
+    "responses": {
+      "err": {
+        "description": "Err",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/errCode"
+            }
+          }
+        }
+      },
+      "notFound": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/errCode"
+            }
+          }
+        }
+      }
+    },
     "schemas": {
       "userInfoResponse": {
         "title": "user info response",

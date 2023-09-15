@@ -14,7 +14,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
@@ -185,8 +184,7 @@ fun Route.configurePublish(){
         if (! checkCode(user, code))
             return@delete call.respondErr("user verify fail")
 
-        val goodsId = call.receiveText()
-            .toLongOrNull()
+        val goodsId = call.receiveJson<GoodsRemoveArgument>()?.goodsId
             ?: return@delete call.respondErr("Invalid request")
 
         val file = File("${Config.resource}goods/icon/$goodsId.pic")

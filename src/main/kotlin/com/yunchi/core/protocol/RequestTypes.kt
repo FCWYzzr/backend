@@ -29,6 +29,11 @@ data class VerifyRequestArgument(
 )
 
 @Serializable
+data class GoodsRemoveArgument(
+    val goodsId: Long
+)
+
+@Serializable
 data class SignUpArgument(
     val username: String,
     val password: String,
@@ -64,27 +69,34 @@ data class PublishArgument(
 
 @Serializable
 data class QueryArgument(
-    val keywords: List<String>?,
+    val keywords: List<String>,
     val minCost: Int,
     val maxCost: Int,
-    val publisher: UserType?,
-    val type: GoodsType?,
+    val publisher: UserType,
+    val ioType: IOType,
+    val goodsType: GoodsType,
+    val tags: List<String>,
     val perPage: Int,
     val page: Int
 ){companion object {
     fun of(param: Parameters): QueryArgument = QueryArgument(
-        param["keywords"]?.split(";"),
+        param["keywords"]!!.split(";"),
         param["maxCost"].orEmpty().toIntOrNull() ?: 0,
         param["minCost"].orEmpty().toIntOrNull() ?: Int.MAX_VALUE,
-        if (param["publisher"] != null)
+        if (param["publisher"]!!.isNotBlank())
             UserType.valueOf(param["publisher"]!!)
         else
-            null,
-        if (param["type"] != null)
-            GoodsType.valueOf(param["type"]!!)
+            UserType.UNKNOWN,
+        if (param["ioType"]!!.isNotBlank())
+            IOType.valueOf(param["ioType"]!!)
         else
-            null,
-        param["perPage"]?.toIntOrNull() ?: 30,
+            IOType.ANY,
+        if (param["goodsType"]!!.isNotBlank())
+            GoodsType.valueOf(param["goodsType"]!!)
+        else
+            GoodsType.ANY,
+        param["tags"]!!.split(";"),
+        param["perPage"]?.toIntOrNull() ?: 10,
         param["page"]?.toIntOrNull() ?: 0
     )
 }}

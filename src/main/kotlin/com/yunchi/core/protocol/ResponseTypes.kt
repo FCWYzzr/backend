@@ -60,8 +60,8 @@ data class GoodsResponse(
 )
 
 @Serializable
-data class UserResponse(
-    val userId: Long
+data class SellerResponse(
+    val sellerId: Long
 )
 
 @Serializable

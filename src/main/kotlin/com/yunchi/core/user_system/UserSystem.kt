@@ -1,6 +1,5 @@
 package com.yunchi.core.user_system
 
-import com.yunchi.Project
 import com.yunchi.configure
 import com.yunchi.core.protocol.UserInfoResponse
 import com.yunchi.core.protocol.orm.Database
@@ -13,15 +12,13 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonPrimitive
 import org.ktorm.dsl.*
 
 fun Application.userSystem() {
     routing {
         get("/userinfo"){
             call.response.configure()
-            val userId = call.parameters["user"]
+            val userId = call.parameters["userId"]
                 .orEmpty().toLongOrNull() ?: return@get call.respond(
                 HttpStatusCode.BadRequest
             )

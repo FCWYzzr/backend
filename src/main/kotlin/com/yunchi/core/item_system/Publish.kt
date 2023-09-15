@@ -161,7 +161,7 @@ fun Route.configurePublish(){
     }
     get("/goods/icon"){
         call.response.configure()
-        val goodsId = call.parameters["GoodsId"].orEmpty()
+        val goodsId = call.parameters["goodsId"].orEmpty()
             .toLongOrNull()
             ?: return@get call.respondErr(
                 "invalid header"

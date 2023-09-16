@@ -3,10 +3,10 @@
 package com.yunchi.core.goods_system
 
 import com.yunchi.Config
-import com.yunchi.configure
 import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.user_system.checkCode
+import com.yunchi.core.utilities.DelegatedRouterBuilder
 import com.yunchi.core.utilities.genSnowflake
 import com.yunchi.dirIfNotExist
 import com.yunchi.fileIfNotExist
@@ -14,7 +14,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,10 +25,8 @@ import org.ktorm.dsl.*
 import java.io.File
 import java.time.Instant
 
-fun Route.configurePublish(){
-    post("/goods/publish"){
-        call.response.configure("X-User-Id", "X-User-Code")
-
+fun DelegatedRouterBuilder.configurePublish() {
+    post("/goods/publish", setOf("X-User-Id", "X-User-Code")) {
         val userId = call.request.headers["X-User-Id"]
             .orEmpty().toLongOrNull()
             ?: return@post call.respondErr("User Id Invalid")
@@ -37,6 +34,9 @@ fun Route.configurePublish(){
 
         val publish = call.receiveJson<PublishArgument>()
             ?: return@post call.respondErr("Invalid Request")
+
+        val keywords = publish.keywords.split(';')
+        val tags = publish.tags.split(';')
 
         if (!checkCode(userId, code))
             return@post call.respondErr("Invalid User Login")
@@ -65,11 +65,11 @@ fun Route.configurePublish(){
 
                 set(it.publisherId, userId)
                 set(it.publisherType, publisherType)
-                set(it.tags, publish.tags.split(";"))
+                set(it.tags, tags)
             }
         CoroutineScope(Dispatchers.IO).launch{
             Database.batchInsert(GoodsAttributeTable){
-                for(attr in publish.keywords)
+                for (attr in keywords)
                     item {
                         set(it.goodsId, goodId)
                         set(it.goodsFactor, attr)
@@ -81,7 +81,7 @@ fun Route.configurePublish(){
                 .from(AttributeInfoTable)
                 .select()
                 .where{
-                    AttributeInfoTable.attribute inList publish.keywords
+                    AttributeInfoTable.attribute inList keywords
                 }
                 .map {
                     it[AttributeInfoTable.attribute]!!
@@ -89,7 +89,7 @@ fun Route.configurePublish(){
                 .toSet()
 
             Database.batchInsert(AttributeInfoTable){
-                for(attr in publish.keywords - existKeywords)
+                for (attr in keywords - existKeywords)
                     item {
                         set(it.attribute, attr)
                         set(it.count, 1)
@@ -122,8 +122,7 @@ fun Route.configurePublish(){
 
         call.respondJson(GoodsResponse(goodId))
     }
-    put("/goods/icon"){
-        call.response.configure("X-Goods-Id", "X-User-Id", "X-User-Code")
+    put("/goods/icon", setOf("X-Goods-Id", "X-User-Id", "X-User-Code")) {
         val user = call.request.headers["X-User-Id"]!!.toLongOrNull() ?: return@put call.respondErr(
             "invalid userId"
         )
@@ -160,7 +159,6 @@ fun Route.configurePublish(){
         call.respond(HttpStatusCode.OK)
     }
     get("/goods/icon"){
-        call.response.configure()
         val goodsId = call.parameters["goodsId"].orEmpty()
             .toLongOrNull()
             ?: return@get call.respondErr(
@@ -168,13 +166,16 @@ fun Route.configurePublish(){
             )
 
         val file = File("${Config.resource}goods/icon/$goodsId.pic")
-        if(file.exists())
-            call.respondFile(file)
+        if (file.exists()) {
+            call.response.header("Content-Type", "image/png")
+            call.respondOutputStream {
+                file.inputStream().transferTo(this)
+            }
+        }
         else
             call.respond(HttpStatusCode.NotFound)
     }
-    delete("/goods/remove"){
-        call.response.configure("X-User-Id", "X-User-Code")
+    delete("/goods/remove", setOf("X-User-Id", "X-User-Code")) {
         val user = call.request.headers["X-User-Id"]
             .orEmpty().toLongOrNull()
             ?: return@delete call.respondErr("invalid user id")

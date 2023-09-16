@@ -47,16 +47,29 @@ object VerifyCode {
     }
 
     private fun alreadyRegister(contact: String, contactType: VerifyType): Boolean{
-        return Database
-            .from(UserExtraInfoTable)
-            .select()
-            .where(
-                when (contactType){
-                    VerifyType.EMAIL -> UserExtraInfoTable.email eq contact
-                    VerifyType.PHONE -> UserExtraInfoTable.phone eq contact.toLong()
-                }
-            )
-            .firstOrNull() != null
+        return when (contactType) {
+            VerifyType.EMAIL, VerifyType.PHONE -> Database
+                .from(UserExtraInfoTable)
+                .select()
+                .where(
+                    if (contactType == VerifyType.EMAIL)
+                        UserExtraInfoTable.email eq contact
+                    else
+                        UserExtraInfoTable.phone eq contact.toLong()
+                )
+                .firstOrNull() != null
+
+            VerifyType.QQ, VerifyType.WECHAT -> Database
+                .from(UserThirdPartyInfoTable)
+                .select()
+                .where(
+                    if (contactType == VerifyType.QQ)
+                        UserThirdPartyInfoTable.qq eq contact.toLong()
+                    else
+                        UserThirdPartyInfoTable.wechat eq contact
+                )
+                .firstOrNull() != null
+        }
     }
 
     fun newCode(contact: String, contactType: VerifyType): String? {

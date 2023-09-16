@@ -66,8 +66,13 @@ data class SellerResponse(
 
 @Serializable
 data class ErrResponse(
+    val code: Int,
     val reason: String
-)
+) {
+    constructor(reason: String, status: HttpStatusCode) : this(
+        status.value, reason
+    )
+}
 
 
 suspend inline fun <reified T> ApplicationCall.respondJson(
@@ -85,9 +90,7 @@ suspend inline fun ApplicationCall.respondErr(
     reason: String,
     status: HttpStatusCode = HttpStatusCode.BadRequest
 ){
-    this.respondText(
-        Json.encodeToString(ErrResponse(reason)),
-        ContentType.parse("application/json"),
-        status
+    this.respondJson(
+        ErrResponse(reason, status)
     )
 }

@@ -1,26 +1,23 @@
 package com.yunchi.core.user_system
 
 import com.yunchi.Project.emailTemplate
-import com.yunchi.Project.phoneTemplate
 import com.yunchi.Project.numberTemplate
-import com.yunchi.configure
+import com.yunchi.Project.phoneTemplate
 import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.Database
 import com.yunchi.core.protocol.orm.UserExtraInfoTable
 import com.yunchi.core.protocol.orm.UserIdentityTable
 import com.yunchi.core.protocol.orm.firstOrNull
+import com.yunchi.core.utilities.DelegatedRouterBuilder
 import com.yunchi.core.utilities.hashAutoSignin
 import com.yunchi.core.utilities.hashAutoSigninParted
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import org.ktorm.dsl.*
 import java.time.Instant
 
-fun Routing.configureSignIn(){
+fun DelegatedRouterBuilder.configureSignIn() {
     post("/signin"){
-        call.response.configure()
         val info = call.receiveJson<SignInArgument>()
             ?: return@post call.respondErr("invalid query")
 
@@ -91,7 +88,6 @@ fun Routing.configureSignIn(){
     }
 
     post("/auto-signin"){
-        call.response.configure()
         val param = call.receiveJson<AutoSignInArgument>()
             ?: return@post call.respondErr("invalid query")
 

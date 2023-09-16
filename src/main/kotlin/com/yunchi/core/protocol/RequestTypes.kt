@@ -4,6 +4,7 @@ package com.yunchi.core.protocol
 import com.yunchi.core.protocol.orm.GoodsType
 import com.yunchi.core.protocol.orm.IOType
 import com.yunchi.core.protocol.orm.UserType
+import com.yunchi.core.protocol.orm.VerifyType
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -25,7 +26,8 @@ data class AutoSignInArgument(
 @Serializable
 data class VerifyRequestArgument(
     val username: String,
-    val contact: String
+    val contact: String,
+    val type: VerifyType
 )
 
 @Serializable
@@ -60,7 +62,7 @@ data class PublishArgument(
     val goodsName: String,
     val validDate: Long,
     val money: Int,
-    val keywords: List<String>,
+    val keywords: String,
 
     val goodsType: GoodsType,
     val ioType: IOType,

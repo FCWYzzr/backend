@@ -1,41 +1,25 @@
 package com.yunchi.core.user_system
 
-import com.yunchi.Project.emailTemplate
-import com.yunchi.Project.phoneTemplate
 import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.utilities.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import org.ktorm.dsl.delete
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.insert
 import java.time.Instant
 
-fun Routing.configureSignUp(){
+fun DelegatedRouterBuilder.configureSignUp() {
     post("/verify"){
-        val (username, contact) = call.receiveJson<VerifyRequestArgument>()
+        val (username, contact, type) = call.receiveJson<VerifyRequestArgument>()
             ?: return@post call.respondErr("invalid request")
-
-        val sender: (name: String, contact: String, String) -> Unit
-        val type = when {
-            contact matches phoneTemplate  -> {
-                sender = {_, _, _ ->}
-                VerifyType.PHONE
-            }
-            contact matches emailTemplate -> {
-                sender = EMailVerifier::sendCodeAsync
-                VerifyType.EMAIL
-            }
-            else -> return@post call.respondErr("unknown contact type")
-        }
 
         val code = VerifyCode.newCode(contact, type)
             ?: return@post call.respondErr("already exist")
 
-        sender.invoke(username, contact, code)
+        sendVerifyCode(username, contact, code, type)
         call.respond(HttpStatusCode.OK)
     }
 

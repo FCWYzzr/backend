@@ -1,23 +1,24 @@
 package com.yunchi.core.goods_system
 
-import com.yunchi.configure
 import com.yunchi.core.protocol.GoodsDetail
 import com.yunchi.core.protocol.QueryArgument
 import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.protocol.respondErr
 import com.yunchi.core.protocol.respondJson
+import com.yunchi.core.utilities.DelegatedRouterBuilder
 import io.ktor.server.application.*
-import io.ktor.server.routing.*
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import org.ktorm.dsl.*
 import java.time.Instant
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 
-fun Route.configureQuery(){
+fun DelegatedRouterBuilder.configureQuery() {
     get("/query/info"){
-        call.response.configure()
         val ids = call.parameters["goodsIds"]
             ?: return@get call.respondErr("Invalid Request")
 
@@ -36,7 +37,6 @@ fun Route.configureQuery(){
         )
     }
     get("/query"){
-        call.response.configure()
         val query = QueryArgument.of(call.parameters)
         val existKeywordsInfo = if (query.keywords.isEmpty())
             Database

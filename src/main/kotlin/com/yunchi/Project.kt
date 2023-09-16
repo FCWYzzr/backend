@@ -3,7 +3,6 @@ package com.yunchi
 import com.yunchi.core.utilities.TimeUnit
 import com.yunchi.denpendency_inject.DriverProvider
 import com.yunchi.denpendency_inject.loadServices
-import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.ktorm.database.Database
@@ -24,7 +23,7 @@ object Project{
     val numberTemplate = Regex("[0-9]+")
     val phoneTemplate = Regex("[0-9]{11}")
     val emailTemplate = Regex(
-        "^\\w+(?:[-+.]\\w+)*@\\w+(?:[-.]\\w+)*\\.\\w+(?:[-.]\\w+)*\$"
+        ""
     )
 
 
@@ -203,13 +202,6 @@ private fun Connection.nopClose(): Connection {
     return object: Connection by this{
         override fun close() {}
     }
-}
-
-fun ApplicationResponse.configure(vararg headers: String = arrayOf("*")){
-    this.header("Access-Control-Allow-Origin", "*")
-    this.header("Access-Control-Allow-Headers", headers.joinToString(
-        ", "
-    ))
 }
 
 fun Random.nextAlNum(): Char{

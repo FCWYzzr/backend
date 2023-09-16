@@ -23,7 +23,9 @@ enum class IOType{
 
 enum class VerifyType{
     EMAIL,
-    PHONE
+    PHONE,
+    QQ,
+    WECHAT
 }
 
 interface UserIdentityModel: Entity<UserIdentityModel> {
@@ -46,6 +48,12 @@ interface UserExtraInfoModel: Entity<UserExtraInfoModel> {
     val phone: Long
     val email: String
     val description: String
+}
+
+interface UserThirdPartyInfoModel : Entity<UserThirdPartyInfoModel> {
+    val userId: Long
+    val qq: Long
+    val wechat: String
 }
 
 

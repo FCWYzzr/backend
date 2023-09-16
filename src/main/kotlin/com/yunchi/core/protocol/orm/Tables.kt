@@ -63,6 +63,21 @@ object UserExtraInfoTable:
         .bindTo(UserExtraInfoModel::description)
 }
 
+object UserThirdPartyInfoTable :
+    Table<UserThirdPartyInfoModel>("user_3party_info") {
+
+    val userId = long("user_id")
+        .primaryKey()
+        .bindTo(UserThirdPartyInfoModel::userId)
+
+    val qq = long("qq")
+        .bindTo(UserThirdPartyInfoModel::qq)
+
+    val wechat = text("wechat")
+        .bindTo(UserThirdPartyInfoModel::wechat)
+}
+
+
 object GroupMessageTable:
     Table<GroupMessageModel>("group_message"){
 

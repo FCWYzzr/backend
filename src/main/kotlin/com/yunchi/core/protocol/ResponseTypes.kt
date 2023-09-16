@@ -65,24 +65,34 @@ data class SellerResponse(
 )
 
 @Serializable
-data class ErrResponse(
+data class Response<T>(
     val code: Int,
-    val reason: String
+    val reason: String?,
+    val body: T?
 ) {
     constructor(reason: String, status: HttpStatusCode) : this(
-        status.value, reason
+        status.value, reason, null
+    )
+
+    constructor(body: T) : this(
+        200, null, body
     )
 }
 
 
 suspend inline fun <reified T> ApplicationCall.respondJson(
-    response: T,
-    status: HttpStatusCode? = null
+    response: T
 ){
     this.respondText(
-        Json.encodeToString(response),
-        ContentType.parse("application/json"),
-        status
+        Json.encodeToString(Response(response)),
+        ContentType.parse("application/json")
+    )
+}
+
+suspend inline fun ApplicationCall.respondOK() {
+    this.respondText(
+        Json.encodeToString(Response<Unit>(200, null, null)),
+        ContentType.parse("application/json")
     )
 }
 
@@ -90,7 +100,8 @@ suspend inline fun ApplicationCall.respondErr(
     reason: String,
     status: HttpStatusCode = HttpStatusCode.BadRequest
 ){
-    this.respondJson(
-        ErrResponse(reason, status)
+    this.respondText(
+        Json.encodeToString(Response<Unit>(reason, status)),
+        ContentType.parse("application/json"),
     )
 }

@@ -3,9 +3,7 @@ package com.yunchi.core.user_system
 import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.utilities.*
-import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import org.ktorm.dsl.delete
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.insert
@@ -20,7 +18,7 @@ fun DelegatedRouterBuilder.configureSignUp() {
             ?: return@post call.respondErr("already exist")
 
         sendVerifyCode(username, contact, code, type)
-        call.respond(HttpStatusCode.OK)
+        call.respondOK()
     }
 
     post("/signup"){

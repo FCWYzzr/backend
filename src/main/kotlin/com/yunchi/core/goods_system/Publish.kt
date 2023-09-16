@@ -156,7 +156,7 @@ fun DelegatedRouterBuilder.configurePublish() {
 
         os.close()
 
-        call.respond(HttpStatusCode.OK)
+        call.respondOK()
     }
     get("/goods/icon"){
         val goodsId = call.parameters["goodsId"].orEmpty()
@@ -251,7 +251,7 @@ fun DelegatedRouterBuilder.configurePublish() {
             RecordGroup.remove(group)
         }
 
-        call.respond(HttpStatusCode.OK)
+        call.respondOK()
     }
     delete("/goods/complete"){
         // todo

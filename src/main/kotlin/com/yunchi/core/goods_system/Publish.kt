@@ -161,9 +161,7 @@ fun DelegatedRouterBuilder.configurePublish() {
     get("/goods/icon"){
         val goodsId = call.parameters["goodsId"].orEmpty()
             .toLongOrNull()
-            ?: return@get call.respondErr(
-                "invalid header"
-            )
+            ?: return@get call.respond(HttpStatusCode.BadRequest)
 
         val file = File("${Config.resource}goods/icon/$goodsId.pic")
         if (file.exists()) {

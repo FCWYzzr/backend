@@ -48,29 +48,39 @@
         },
         "responses": {
           "200": {
-            "description": "login success",
+            "description": "response body",
             "content": {
               "application/json": {
                 "schema": {
-                  "title": "sign in response",
-                  "description": "containing values client needed for 'auto-signin' action",
-                  "type": "object",
                   "properties": {
-                    "userId": {
-                      "type": "integer",
-                      "description": "uid for this user"
-                    },
                     "code": {
+                      "type": "integer",
+                      "description": "response code"
+                    },
+                    "reason": {
+                      "nullable": true,
                       "type": "string",
-                      "description": "hashcode, for client to 'auto-signin'"
+                      "description": "response reason, null if code is 200"
+                    },
+                    "body": {
+                      "nullable": true,
+                      "type": "object",
+                      "description": "response body, null if code is not 200",
+                      "properties": {
+                        "userId": {
+                          "type": "integer",
+                          "description": "user id"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "hashcode, for client to 'auto-signin'"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -113,17 +123,29 @@
                   "type": "object",
                   "properties": {
                     "code": {
+                      "type": "number",
+                      "description": "status code"
+                    },
+                    "reason": {
+                      "nullable": true,
                       "type": "string",
-                      "description": "the code client should save for next auto-signin session"
+                      "description": "if code is not 200, this field will be set to the reason of failure"
+                    },
+                    "body": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "response body, null if code is not 200",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "the code client should save for next auto-signin session"
+                        }
+                      }
                     }
                   }
-
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -156,10 +178,30 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
+            "description": "response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number",
+                      "description": "success or not"
+                    },
+                    "reason": {
+                      "nullable": true,
+                      "type": "string",
+                      "description": "if code is not 200, this field will be set to the reason of failure"
+                    },
+                    "body": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "this body is a placeholder, always null"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -196,10 +238,39 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
+            "description": "response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "response code"
+                    },
+                    "reason": {
+                      "nullable": true,
+                      "type": "string",
+                      "description": "response reason, null if code is 200"
+                    },
+                    "body": {
+                      "nullable": true,
+                      "type": "object",
+                      "description": "response body, null if code is not 200",
+                      "properties": {
+                        "userId": {
+                          "type": "integer",
+                          "description": "user id"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "hashcode, for client to 'auto-signin'"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -229,16 +300,40 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/userInfoResponse"
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "response code"
+                    },
+                    "reason": {
+                      "nullable": true,
+                      "type": "string",
+                      "description": "response reason, null if code is 200"
+                    },
+                    "body": {
+                      "nullable": true,
+                      "type": "object",
+                      "description": "response body, null if code is not 200",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "user name"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "UNKNOWN",
+                            "STUDENT",
+                            "COMPANY"
+                          ],
+                          "description": "user type, one of UNKNOWN, STUDENT and COMPANY"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
           }
         }
       }
@@ -293,11 +388,19 @@
                   },
                   "goodsType": {
                     "type": "string",
-                    "description": "one of ( OBJECT, FAVOR, ANY )"
+                    "enum": [
+                      "OBJECT",
+                      "FAVOR"
+                    ],
+                    "description": "one of ( OBJECT, FAVOR )"
                   },
                   "ioType": {
                     "type": "string",
-                    "description": "one of ( SELLING, ACQUISITION, ANY )"
+                    "enum": [
+                      "SELLING",
+                      "ACQUISITION"
+                    ],
+                    "description": "one of ( SELLING, ACQUISITION )"
                   },
                   "tags": {
                     "type": "string",
@@ -316,17 +419,30 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "goodsId": {
+                    "code": {
                       "type": "integer",
-                      "description": "goods id"
+                      "description": "response code"
+                    },
+                    "reason": {
+                      "nullable": true,
+                      "type": "string",
+                      "description": "response reason, null if code is 200"
+                    },
+                    "body": {
+                      "nullable": true,
+                      "type": "object",
+                      "description": "response body, null if code is not 200",
+                      "properties": {
+                        "goodsId": {
+                          "type": "integer",
+                          "description": "goods id"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -372,17 +488,29 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Err",
+            "description": "response body",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/errCode"
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "response code"
+                    },
+                    "reason": {
+                      "nullable": true,
+                      "type": "string",
+                      "description": "response reason, null if code is 200"
+                    },
+                    "body": {
+                      "nullable": true,
+                      "type": "object",
+                      "description": "response body, placeholder, always null"
+                    }
+                  }
                 }
               }
-             }
+            }
           }
         }
       }
@@ -415,10 +543,10 @@
             }
           },
           "400": {
-            "$ref": "#/components/responses/err"
+            "description": "invalid query"
           },
           "404": {
-            "$ref": "#/components/responses/notFound"
+            "description": "goods not found"
           }
         }
       },
@@ -471,9 +599,6 @@
         "responses": {
           "200": {
             "description": "OK"
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -494,38 +619,53 @@
         }],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "query result",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "a dictionary, key is goods id, value is goods info",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "price": {
-                        "description": "price in cents",
-                        "type": "integer"
-                      },
-                      "publisherType": {
-                        "description": "one of ( STUDENT, COMPANY )",
-                        "type": "string"
-                      },
-                      "ioType": {
-                        "description": "one of ( SELLING, ACQUISITION )",
-                        "type": "string"
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "response code"
+                    },
+                    "reason": {
+                      "nullable": true,
+                      "type": "string",
+                      "description": "response reason, null if code is 200"
+                    },
+                    "body": {
+                      "nullable": true,
+                      "type": "object",
+                      "description": "response body, null if code is not 200, actually a dictionary, key is goods id, value is goods info",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "description": "price in cents",
+                            "type": "integer"
+                          },
+                          "publisherType": {
+                            "enum": [
+                              "STUDENT",
+                              "COMPANY"
+                            ],
+                            "description": "one of ( STUDENT, COMPANY )",
+                            "type": "string"
+                          },
+                          "ioType": {
+                            "description": "one of ( SELLING, ACQUISITION )",
+                            "type": "string"
+                          }
+                        }
                       }
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
           }
         }
       }
@@ -538,14 +678,14 @@
         ],
         "parameters": [
           {
-          "in": "path",
+            "in": "path",
             "required": true,
             "allowEmptyValue": true,
-          "name": "keywords",
-          "schema": {
-            "type": "string",
-            "description": "keywords, separated by semicolon ';'"
-          }
+            "name": "keywords",
+            "schema": {
+              "type": "string",
+              "description": "keywords, separated by semicolon ';'"
+            }
           },
           {
             "in": "path",
@@ -569,7 +709,7 @@
           },
           {
             "in": "path",
-            "required": true,
+            "required": false,
             "allowEmptyValue": true,
             "name": "publisher",
             "schema": {
@@ -630,31 +770,45 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "body",
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "a array of query results",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "description": "query result, containing goods id, goods score, and keywords info of each goods",
-                    "properties": {
-                        "goodsId": {
+                  "description": "response body",
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "status code"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "null if code is 200"
+                    },
+                    "body": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "query result, containing goods id, goods score, and keywords info of each goods",
+                        "properties": {
+                          "goodsId": {
                             "type": "integer"
-                        },
-                        "score": {
+                          },
+                          "score": {
                             "type": "integer",
                             "description": "score of this goods, higher score means more relevant to the keywords. note that ret.score = sum(ret.keywords.values())"
-                        },
-                        "keywords": {
+                          },
+                          "keywords": {
                             "type": "object",
                             "description": "the weight of this keyword in this goods.",
                             "additionalProperties": {
                               "type": "number",
                               "description": " score = keywords_fit_time / keywords_total_match_times / keywords_appear_count"
                             }
+                          }
                         }
+                      }
                     }
                   }
                 }
@@ -688,27 +842,28 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "groupId": {
+                    "code": {
                       "type": "integer",
-                      "description": "group id"
+                      "description": "status code"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "fail reason, null if code is 200"
+                    },
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "groupId": {
+                          "type": "integer",
+                          "description": "group id"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Err",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/errCode"
-                }
-              }
-             }
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
           }
         }
       }
@@ -736,67 +891,27 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "sellerId": {
+                    "code": {
                       "type": "integer",
-                      "description": "seller id"
+                      "description": "status code"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "description": "null if code is 200"
+                    },
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "sellerId": {
+                          "type": "integer",
+                          "description": "seller id"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "$ref": "#/components/responses/err"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "responses": {
-      "err": {
-        "description": "Err",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/errCode"
-            }
-          }
-        }
-      },
-      "notFound": {
-        "description": "Not Found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/errCode"
-            }
-          }
-        }
-      }
-    },
-    "schemas": {
-      "userInfoResponse": {
-        "title": "user info response",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "user name"
-          },
-          "type": {
-            "type": "string",
-            "description": "user type, one of UNKNOWN, STUDENT and COMPANY"
-          }
-        }
-      },
-      "errCode": {
-        "title": "err code",
-        "properties": {
-          "reason": {
-            "type": "string"
           }
         }
       }

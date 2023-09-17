@@ -374,6 +374,10 @@
                   "goodsName": {
                     "type": "string"
                   },
+                  "publishDate": {
+                    "type": "integer",
+                    "description": "publish date in epoch seconds"
+                  },
                   "validDate": {
                     "type": "integer",
                     "description": "valid date in epoch seconds"

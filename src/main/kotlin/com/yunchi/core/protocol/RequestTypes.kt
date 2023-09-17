@@ -60,6 +60,7 @@ data class MessageArgument(
 @Serializable
 data class PublishArgument(
     val goodsName: String,
+    val publishDate: Long,
     val validDate: Long,
     val money: Int,
     val keywords: String,
@@ -82,22 +83,22 @@ data class QueryArgument(
     val page: Int
 ){companion object {
     fun of(param: Parameters): QueryArgument = QueryArgument(
-        param["keywords"]!!.split(";"),
+        param["keywords"].orEmpty().split(";"),
         param["maxCost"].orEmpty().toIntOrNull() ?: 0,
         param["minCost"].orEmpty().toIntOrNull() ?: Int.MAX_VALUE,
-        if (param["publisher"]!!.isNotBlank())
+        if (param["publisher"].orEmpty().isNotBlank())
             UserType.valueOf(param["publisher"]!!)
         else
             UserType.UNKNOWN,
-        if (param["ioType"]!!.isNotBlank())
+        if (param["ioType"].orEmpty().isNotBlank())
             IOType.valueOf(param["ioType"]!!)
         else
             IOType.ANY,
-        if (param["goodsType"]!!.isNotBlank())
+        if (param["goodsType"].orEmpty().isNotBlank())
             GoodsType.valueOf(param["goodsType"]!!)
         else
             GoodsType.ANY,
-        param["tags"]!!.split(";"),
+        param["tags"].orEmpty().split(";"),
         param["perPage"]?.toIntOrNull() ?: 10,
         param["page"]?.toIntOrNull() ?: 0
     )

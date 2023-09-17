@@ -57,6 +57,7 @@ fun DelegatedRouterBuilder.configurePublish() {
                 set(it.name, publish.goodsName)
                 set(it.money, publish.money)
 
+                set(it.publishDate, Instant.ofEpochSecond(publish.publishDate))
                 set(it.validDate, Instant.ofEpochSecond(publish.validDate))
                 set(it.goodsType, publish.goodsType)
                 set(it.ioType, publish.ioType)

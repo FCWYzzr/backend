@@ -60,6 +60,8 @@ interface UserThirdPartyInfoModel : Entity<UserThirdPartyInfoModel> {
 interface GoodsModel: Entity<GoodsModel>{
     val goodsId: Long
     val name: String
+
+    val publishDate: Instant
     val validDate: Instant
     val money: Int
     val publisherId: Long

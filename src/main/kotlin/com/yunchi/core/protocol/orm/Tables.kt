@@ -106,6 +106,9 @@ object GoodsTable:
         .bindTo(GoodsModel::goodsId)
     val name = text("name")
         .bindTo(GoodsModel::name)
+
+    val publishDate = timestamp("publish_date")
+        .bindTo(GoodsModel::publishDate)
     val validDate = timestamp("valid_date")
         .bindTo(GoodsModel::validDate)
     val money = int("money")

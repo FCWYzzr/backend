@@ -83,7 +83,7 @@ data class QueryArgument(
     val page: Int
 ){companion object {
     fun of(param: Parameters): QueryArgument = QueryArgument(
-        param["keywords"].orEmpty().split(";"),
+        param["keywords"]?.split(";") ?: listOf(),
         param["maxCost"].orEmpty().toIntOrNull() ?: 0,
         param["minCost"].orEmpty().toIntOrNull() ?: Int.MAX_VALUE,
         if (param["publisher"].orEmpty().isNotBlank())
@@ -98,7 +98,7 @@ data class QueryArgument(
             GoodsType.valueOf(param["goodsType"]!!)
         else
             GoodsType.ANY,
-        param["tags"].orEmpty().split(";"),
+        param["tags"]?.split(";") ?: listOf(),
         param["perPage"]?.toIntOrNull() ?: 10,
         param["page"]?.toIntOrNull() ?: 0
     )

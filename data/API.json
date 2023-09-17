@@ -709,7 +709,7 @@
           },
           {
             "in": "path",
-            "required": false,
+            "required": true,
             "allowEmptyValue": true,
             "name": "publisher",
             "schema": {

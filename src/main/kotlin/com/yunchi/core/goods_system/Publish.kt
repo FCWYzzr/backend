@@ -10,7 +10,6 @@ import com.yunchi.core.utilities.DelegatedRouterBuilder
 import com.yunchi.core.utilities.genSnowflake
 import com.yunchi.dirIfNotExist
 import com.yunchi.fileIfNotExist
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -29,17 +28,17 @@ fun DelegatedRouterBuilder.configurePublish() {
     post("/goods/publish", setOf("X-User-Id", "X-User-Code")) {
         val userId = call.request.headers["X-User-Id"]
             .orEmpty().toLongOrNull()
-            ?: return@post call.respondErr("User Id Invalid")
+            ?: return@post call.respondErr("X-User-Id格式错误")
         val code = call.request.headers["X-User-Code"]!!
 
         val publish = call.receiveJson<PublishArgument>()
-            ?: return@post call.respondErr("Invalid Request")
+            ?: return@post call.respondErr("请求格式错误")
 
         val keywords = publish.keywords.split(';')
         val tags = publish.tags.split(';')
 
         if (!checkCode(userId, code))
-            return@post call.respondErr("Invalid User Login")
+            return@post call.respondErr("无效的用户登录")
 
         val goodId = genSnowflake("goods")
         val publisherType = Database
@@ -47,11 +46,10 @@ fun DelegatedRouterBuilder.configurePublish() {
             .select(UserIdentityTable.type)
             .where(UserIdentityTable.id eq userId)
             .map { it[UserIdentityTable.type]!! }
-            .firstOrNull()?:
-            return@post call.respondErr("No Such User")
+            .firstOrNull()?: return@post call.respondErr("不存在该用户")
 
         if (publisherType == UserType.UNKNOWN)
-            return@post call.respondErr("Only Student & Company can publish goods")
+            return@post call.respondErr("未认证会员不可发布需求")
 
         Database
             .insert(GoodsTable){
@@ -124,12 +122,12 @@ fun DelegatedRouterBuilder.configurePublish() {
     }
     put("/goods/icon", setOf("X-Goods-Id", "X-User-Id", "X-User-Code")) {
         val user = call.request.headers["X-User-Id"]!!.toLongOrNull() ?: return@put call.respondErr(
-            "invalid userId"
+            "X-User-Id格式错误"
         )
         val code = call.request.headers["X-User-Code"]!!
         val goodsId = call.request.headers["X-Goods-Id"]!!
             .toLongOrNull()
-            ?: return@put call.respondErr("invalid header")
+            ?: return@put call.respondErr("X-Goods-Id格式错误")
 
         val seller = Database
             .from(GoodsTable)
@@ -137,13 +135,13 @@ fun DelegatedRouterBuilder.configurePublish() {
             .where(GoodsTable.id eq goodsId)
             .mapNotNull { it[GoodsTable.publisherId] }
             .firstOrNull()
-            ?: return@put call.respondErr("goods not exist")
+            ?: return@put call.respondErr("商品不存在")
 
         if (seller != user)
-            return@put call.respondErr("operation denied")
+            return@put call.respondErr("没有操作权限")
 
         if (!checkCode(user, code))
-            return@put call.respondErr("user verify fail")
+            return@put call.respondErr("用户认证失败")
 
         dirIfNotExist("${Config.resource}goods/icon/")
 
@@ -161,7 +159,7 @@ fun DelegatedRouterBuilder.configurePublish() {
     get("/goods/icon"){
         val goodsId = call.parameters["goodsId"].orEmpty()
             .toLongOrNull()
-            ?: return@get call.respond(HttpStatusCode.BadRequest)
+            ?: return@get call.respondErr("需要商品Id")
 
         val file = File("${Config.resource}goods/icon/$goodsId.pic")
         if (file.exists()) {
@@ -171,20 +169,20 @@ fun DelegatedRouterBuilder.configurePublish() {
             }
         }
         else
-            call.respond(HttpStatusCode.NotFound)
+            call.respondErr("该商品不存在")
     }
     delete("/goods/remove", setOf("X-User-Id", "X-User-Code")) {
         val user = call.request.headers["X-User-Id"]
             .orEmpty().toLongOrNull()
-            ?: return@delete call.respondErr("invalid user id")
+            ?: return@delete call.respondErr("X-User-Id格式错误")
 
         val code = call.request.headers["X-User-Code"]!!
 
         if (! checkCode(user, code))
-            return@delete call.respondErr("user verify fail")
+            return@delete call.respondErr("用户认证失败")
 
         val goodsId = call.receiveJson<GoodsRemoveArgument>()?.goodsId
-            ?: return@delete call.respondErr("Invalid request")
+            ?: return@delete call.respondErr("请求参数格式错误")
 
         val file = File("${Config.resource}goods/icon/$goodsId.pic")
         if(file.exists())

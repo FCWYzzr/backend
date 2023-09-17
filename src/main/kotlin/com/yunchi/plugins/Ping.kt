@@ -3,11 +3,11 @@ package com.yunchi.plugins
 import com.yunchi.Config
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.openapi.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.plugins.openapi.*
 import java.nio.file.Files
-import java.nio.file.Path.of
+import java.nio.file.Path
 
 fun Application.configurePing() {
     routing {
@@ -17,7 +17,7 @@ fun Application.configurePing() {
         openAPI("/api", swaggerFile = Config.resource + "api.json")
         get("/api-group"){
             call.respondText(Files.readString(
-                of(
+                Path.of(
                     Config.resource + "api-group.html"
                 )
             ), ContentType.parse("text/html"))

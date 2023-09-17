@@ -20,7 +20,7 @@ import kotlin.collections.set
 fun DelegatedRouterBuilder.configureQuery() {
     get("/query/info"){
         val ids = call.parameters["goodsIds"]
-            ?: return@get call.respondErr("Invalid Request")
+            ?: return@get call.respondErr("请求参数缺失商品Id")
 
         val idList = ids.split(";")
             .mapNotNull(String::toLongOrNull)

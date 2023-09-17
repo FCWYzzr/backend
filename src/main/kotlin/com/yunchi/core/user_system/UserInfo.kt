@@ -9,14 +9,13 @@ import com.yunchi.core.protocol.respondJson
 import com.yunchi.core.utilities.DelegatedRouterBuilder
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import org.ktorm.dsl.*
 
 fun DelegatedRouterBuilder.configureInfo() {
     get("/userinfo") {
         val userId = call.parameters["userId"]
-            .orEmpty().toLongOrNull() ?: return@get call.respond(
-            HttpStatusCode.BadRequest
+            .orEmpty().toLongOrNull() ?: return@get call.respondErr(
+            "需要用户Id"
         )
 
         val user = Database
@@ -28,7 +27,7 @@ fun DelegatedRouterBuilder.configureInfo() {
             .asIterable()
             .firstOrNull()
             ?: return@get call
-                .respondErr("no such user", HttpStatusCode.NotFound)
+                .respondErr("不存在此用户", HttpStatusCode.NotFound)
 
         val type = Database
             .from(UserIdentityTable)
@@ -39,7 +38,7 @@ fun DelegatedRouterBuilder.configureInfo() {
             .asIterable()
             .firstOrNull()
             ?: return@get call
-                .respondErr("no such user", HttpStatusCode.NotFound)
+                .respondErr("不存在此用户", HttpStatusCode.NotFound)
 
         call.respondJson(
             UserInfoResponse(

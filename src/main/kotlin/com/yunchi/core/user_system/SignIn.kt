@@ -19,7 +19,7 @@ import java.time.Instant
 fun DelegatedRouterBuilder.configureSignIn() {
     post("/signin"){
         val info = call.receiveJson<SignInArgument>()
-            ?: return@post call.respondErr("invalid query")
+            ?: return@post call.respondErr("请求参数格式错误")
 
         val userId = Database
             .from(UserExtraInfoTable)
@@ -57,7 +57,7 @@ fun DelegatedRouterBuilder.configureSignIn() {
             .asIterable()
             .firstNotNullOfOrNull { it[UserExtraInfoTable.userId] }
             ?: return@post call.respondErr(
-                "User not found", HttpStatusCode.NotFound
+                "不存在该用户", HttpStatusCode.NotFound
             )
 
         Database
@@ -67,7 +67,7 @@ fun DelegatedRouterBuilder.configureSignIn() {
                 (UserIdentityTable.id eq userId) and
                     (UserIdentityTable.pwd eq info.password)
             ).firstOrNull()
-            ?: return@post call.respondErr("Wrong Password")
+            ?: return@post call.respondErr("密码错误")
 
         val timestamp = Instant.now()
 
@@ -89,7 +89,7 @@ fun DelegatedRouterBuilder.configureSignIn() {
 
     post("/auto-signin"){
         val param = call.receiveJson<AutoSignInArgument>()
-            ?: return@post call.respondErr("invalid query")
+            ?: return@post call.respondErr("请求参数格式错误")
 
         val row = Database
             .from(UserIdentityTable)
@@ -100,7 +100,7 @@ fun DelegatedRouterBuilder.configureSignIn() {
             .asIterable()
             .firstOrNull()
             ?: return@post call.respondErr(
-                "User not found",HttpStatusCode.NotFound
+                "不存在该用户", HttpStatusCode.NotFound
             )
 
 
@@ -111,7 +111,7 @@ fun DelegatedRouterBuilder.configureSignIn() {
         )
         if (fixedPart(lastTime) != param.code)
             return@post call.respondErr(
-                "Login Fail"
+                "自动登录失败"
             )
 
         val current = Instant.now()

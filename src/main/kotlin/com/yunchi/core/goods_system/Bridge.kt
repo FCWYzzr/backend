@@ -22,7 +22,7 @@ fun DelegatedRouterBuilder.configureBridge() {
     get("/group/redirect"){
         val goodsId = call.parameters["goodsId"]
             .orEmpty().toLongOrNull()
-            ?: return@get call.respondErr("Invalid Request")
+            ?: return@get call.respondErr("缺失商品Id")
 
         val groupId = Database
             .from(GoodsGroupRedirectTable)
@@ -30,7 +30,7 @@ fun DelegatedRouterBuilder.configureBridge() {
             .where (GoodsGroupRedirectTable.goodsId eq goodsId)
             .map { it[GoodsGroupRedirectTable.goodsId]!! }
             .firstOrNull()
-            ?: return@get call.respondErr("Goods not found", HttpStatusCode.NotFound)
+            ?: return@get call.respondErr("不存在此商品", HttpStatusCode.NotFound)
 
         call.respondJson(GroupResponse(groupId))
     }
@@ -38,7 +38,7 @@ fun DelegatedRouterBuilder.configureBridge() {
     get("/group/seller"){
         val groupId = call.parameters["groupId"]
             .orEmpty().toLongOrNull()
-            ?: return@get call.respondErr("Invalid Request")
+            ?: return@get call.respondErr("缺失组Id")
 
         val seller = Database
             .from(GoodsGroupRedirectTable)
@@ -49,7 +49,7 @@ fun DelegatedRouterBuilder.configureBridge() {
             .map { it[GoodsGroupRedirectTable.publisherId] }
             .filterNotNull()
             .firstOrNull()
-            ?: return@get call.respondErr("Group not found", HttpStatusCode.NotFound)
+            ?: return@get call.respondErr("不存在此组", HttpStatusCode.NotFound)
 
         call.respondJson(SellerResponse(seller))
     }

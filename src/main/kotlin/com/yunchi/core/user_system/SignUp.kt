@@ -12,10 +12,10 @@ import java.time.Instant
 fun DelegatedRouterBuilder.configureSignUp() {
     post("/verify"){
         val (username, contact, type) = call.receiveJson<VerifyRequestArgument>()
-            ?: return@post call.respondErr("invalid request")
+            ?: return@post call.respondErr("参数格式错误")
 
         val code = VerifyCode.newCode(contact, type)
-            ?: return@post call.respondErr("already exist")
+            ?: return@post call.respondErr("该联系方式已被注册")
 
         sendVerifyCode(username, contact, code, type)
         call.respondOK()
@@ -23,10 +23,10 @@ fun DelegatedRouterBuilder.configureSignUp() {
 
     post("/signup"){
         val info = call.receiveJson<SignUpArgument>()
-            ?: return@post call.respondErr("invalid request")
+            ?: return@post call.respondErr("请求参数格式错误")
 
         val type = VerifyCode.matchCode(info.contact, info.code)
-            ?: return@post call.respondErr("not verified")
+            ?: return@post call.respondErr("验证码不正确")
 
         val id = genSnowflake("user")
         val current = Instant.now()

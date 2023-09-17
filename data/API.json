@@ -5,6 +5,7 @@
     "version": "1.0",
     "description": "for web socket doc, see /api-group"
   },
+  "components": {},
   "paths": {
     "/ping":  {
       "get": {

@@ -3,6 +3,7 @@ val kotlinVersion: String by project
 val ktormVersion: String by project
 val logbackVersion: String by project
 
+
 plugins {
     kotlin("jvm") version "1.9.0"
     id("io.ktor.plugin") version "2.3.4"

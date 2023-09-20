@@ -15,7 +15,7 @@ object CandidateVerifyCodeTable:
         .primaryKey()
         .bindTo(CandidateVerifyCodeModel::userContact)
 
-    val type = enumOf("type", VerifyType::valueOf)
+    val type = enumOf("type", ContactType::valueOf)
         .bindTo(CandidateVerifyCodeModel::type)
 
     val code = text("code")

@@ -97,7 +97,6 @@ fun DelegatedRouterBuilder.configureSignIn() {
             .where{
                 UserIdentityTable.id eq param.userId
             }
-            .asIterable()
             .firstOrNull()
             ?: return@post call.respondErr(
                 "不存在该用户", HttpStatusCode.NotFound

@@ -24,14 +24,16 @@ data class GoodsDetail(
     val name: String,
     val price: Int,
     val publisherType: UserType,
-    val ioType: IOType
+    val ioType: IOType,
+    val hasIcon: Boolean
 ){companion object{
-    fun of(row: QueryRowSet): GoodsDetail{
+    fun of(row: QueryRowSet, hasIcon: Boolean): GoodsDetail {
         return GoodsDetail(
             row[GoodsTable.name]!!,
             row[GoodsTable.money]!!,
             row[GoodsTable.publisherType]!!,
-            row[GoodsTable.ioType]!!
+            row[GoodsTable.ioType]!!,
+            hasIcon
         )
     }
 }}

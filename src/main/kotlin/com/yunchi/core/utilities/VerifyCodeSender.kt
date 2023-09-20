@@ -1,13 +1,13 @@
 package com.yunchi.core.utilities
 
-import com.yunchi.core.protocol.orm.VerifyType
+import com.yunchi.core.protocol.orm.ContactType
 
-fun sendVerifyCode(username: String, contact: String, code: String, verifyType: VerifyType) {
+fun sendVerifyCode(username: String, contact: String, code: String, verifyType: ContactType) {
     when (verifyType) {
-        VerifyType.QQ -> EMailVerifier.sendCodeAsync(username, "$contact@qq.com", code)
+        ContactType.QQ -> EMailVerifier.sendCodeAsync(username, "$contact@qq.com", code)
         // todo add qq bot verifier
-        VerifyType.EMAIL -> EMailVerifier.sendCodeAsync(username, contact, code)
-        VerifyType.PHONE -> println(code) // todo add message verifier
-        VerifyType.WECHAT -> println(code) // todo add wechat bot verifier
+        ContactType.EMAIL -> EMailVerifier.sendCodeAsync(username, contact, code)
+        ContactType.PHONE -> println(code) // todo add message verifier
+        ContactType.WECHAT -> println(code) // todo add wechat bot verifier
     }
 }

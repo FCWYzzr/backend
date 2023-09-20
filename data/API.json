@@ -278,6 +278,43 @@
         }
       }
     },
+    "/signup/identify": {
+      "post": {
+        "description": "上传用户验证图片",
+        "parameters": [
+          {
+            "name": "X-User-Id",
+            "description": "用户Id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "X-User-Code",
+            "description": "用户口令",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "图片",
+          "required": true,
+          "content": {
+            "image/png": {}
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/userinfo": {
       "get": {
         "tags": [
@@ -590,17 +627,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "icon": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              }
-            }
+            "image/png": {}
           }
         },
         "responses": {

@@ -25,7 +25,7 @@ object VerifyCode {
             .firstOrNull() != null
     }
 
-    private fun updateCode(contact: String, code: String, verifyType: VerifyType){
+    private fun updateCode(contact: String, code: String, verifyType: ContactType) {
         Database
             .update(CandidateVerifyCodeTable){
                 set(it.code, code)
@@ -36,7 +36,7 @@ object VerifyCode {
 
     }
 
-    private fun saveCode(contact: String, code: String, verifyType: VerifyType){
+    private fun saveCode(contact: String, code: String, verifyType: ContactType) {
         Database
             .insert(CandidateVerifyCodeTable){
                 set(it.code, code)
@@ -46,24 +46,24 @@ object VerifyCode {
             }
     }
 
-    private fun alreadyRegister(contact: String, contactType: VerifyType): Boolean{
+    private fun alreadyRegister(contact: String, contactType: ContactType): Boolean {
         return when (contactType) {
-            VerifyType.EMAIL, VerifyType.PHONE -> Database
+            ContactType.EMAIL, ContactType.PHONE -> Database
                 .from(UserExtraInfoTable)
                 .select()
                 .where(
-                    if (contactType == VerifyType.EMAIL)
+                    if (contactType == ContactType.EMAIL)
                         UserExtraInfoTable.email eq contact
                     else
                         UserExtraInfoTable.phone eq contact.toLong()
                 )
                 .firstOrNull() != null
 
-            VerifyType.QQ, VerifyType.WECHAT -> Database
+            ContactType.QQ, ContactType.WECHAT -> Database
                 .from(UserThirdPartyInfoTable)
                 .select()
                 .where(
-                    if (contactType == VerifyType.QQ)
+                    if (contactType == ContactType.QQ)
                         UserThirdPartyInfoTable.qq eq contact.toLong()
                     else
                         UserThirdPartyInfoTable.wechat eq contact
@@ -72,7 +72,7 @@ object VerifyCode {
         }
     }
 
-    fun newCode(contact: String, contactType: VerifyType): String? {
+    fun newCode(contact: String, contactType: ContactType): String? {
         if (alreadyRegister(contact, contactType))
             return null
         val code = genCode()
@@ -85,7 +85,7 @@ object VerifyCode {
         return code
     }
 
-    fun matchCode(contact: String, code: String): VerifyType?{
+    fun matchCode(contact: String, code: String): ContactType? {
         val current = Instant.now()
         return Database
             .from(CandidateVerifyCodeTable)

@@ -1,10 +1,10 @@
 package com.yunchi.core.protocol
 
 
+import com.yunchi.core.protocol.orm.ContactType
 import com.yunchi.core.protocol.orm.GoodsType
 import com.yunchi.core.protocol.orm.IOType
 import com.yunchi.core.protocol.orm.UserType
-import com.yunchi.core.protocol.orm.VerifyType
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -24,10 +24,24 @@ data class AutoSignInArgument(
 )
 
 @Serializable
+data class VisitorSignInArgument(
+    val name: String
+)
+
+@Serializable
+data class VisitorUpgradeArgument(
+    val userId: Long,
+    val code: String,
+    val password: String,
+    val contact: String,
+    val type: ContactType
+)
+
+@Serializable
 data class VerifyRequestArgument(
     val username: String,
     val contact: String,
-    val type: VerifyType
+    val type: ContactType
 )
 
 @Serializable

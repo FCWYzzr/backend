@@ -6,7 +6,8 @@ import java.time.Instant
 enum class UserType{
     STUDENT,
     COMPANY,
-    UNKNOWN
+    UNKNOWN,
+    VISITOR
 }
 
 enum class GoodsType{
@@ -21,7 +22,7 @@ enum class IOType{
     ANY
 }
 
-enum class VerifyType{
+enum class ContactType {
     EMAIL,
     PHONE,
     QQ,
@@ -37,7 +38,7 @@ interface UserIdentityModel: Entity<UserIdentityModel> {
 
 interface CandidateVerifyCodeModel: Entity<CandidateVerifyCodeModel> {
     val userContact: String
-    val type: VerifyType
+    val type: ContactType
     val code: String
     val expireAt: Instant
 }

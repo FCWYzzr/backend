@@ -12,7 +12,6 @@ import com.yunchi.dirIfNotExist
 import com.yunchi.fileIfNotExist
 import io.ktor.server.application.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -146,7 +145,7 @@ fun DelegatedRouterBuilder.configurePublish() {
 
         dirIfNotExist("${Config.resource}goods/icon/")
 
-        val os = fileIfNotExist("${Config.resource}goods/icon/$goodsId.pic")
+        val os = fileIfNotExist("${Config.resource}goods/icon/$goodsId.png")
             .outputStream()
 
         withContext(Dispatchers.IO) {
@@ -157,21 +156,7 @@ fun DelegatedRouterBuilder.configurePublish() {
 
         call.respondOK()
     }
-    get("/goods/icon"){
-        val goodsId = call.parameters["goodsId"].orEmpty()
-            .toLongOrNull()
-            ?: return@get call.respondErr("需要商品Id")
 
-        val file = File("${Config.resource}goods/icon/$goodsId.pic")
-        if (file.exists()) {
-            call.response.header("Content-Type", "image/png")
-            call.respondOutputStream {
-                file.inputStream().transferTo(this)
-            }
-        }
-        else
-            call.respondErr("该商品不存在")
-    }
     delete("/goods/remove", setOf("X-User-Id", "X-User-Code")) {
         val user = call.request.headers["X-User-Id"]
             .orEmpty().toLongOrNull()
@@ -185,7 +170,7 @@ fun DelegatedRouterBuilder.configurePublish() {
         val goodsId = call.receiveJson<GoodsRemoveArgument>()?.goodsId
             ?: return@delete call.respondErr("请求参数格式错误")
 
-        val file = File("${Config.resource}goods/icon/$goodsId.pic")
+        val file = File("${Config.resource}goods/icon/$goodsId.png")
         if(file.exists())
             file.delete()
 

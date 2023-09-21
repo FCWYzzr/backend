@@ -46,6 +46,7 @@ interface CandidateVerifyCodeModel: Entity<CandidateVerifyCodeModel> {
 interface UserExtraInfoModel: Entity<UserExtraInfoModel> {
     val userId: Long
     val name: String
+    val image: String
     val phone: Long
     val email: String
     val description: String
@@ -57,10 +58,17 @@ interface UserThirdPartyInfoModel : Entity<UserThirdPartyInfoModel> {
     val wechat: String
 }
 
+interface VerifyRequestModel : Entity<VerifyRequestModel> {
+    val userId: Long
+    val desireType: UserType
+    val materials: List<String>
+}
+
 
 interface GoodsModel: Entity<GoodsModel>{
     val goodsId: Long
     val name: String
+    val image: String
 
     val publishDate: Instant
     val validDate: Instant

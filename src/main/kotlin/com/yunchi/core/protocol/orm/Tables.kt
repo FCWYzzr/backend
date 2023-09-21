@@ -1,6 +1,7 @@
 package com.yunchi.core.protocol.orm
 
 import com.yunchi.Project
+import com.yunchi.core.protocol.orm.UserExtraInfoTable.bindTo
 import org.ktorm.database.Database
 import org.ktorm.schema.*
 
@@ -52,6 +53,9 @@ object UserExtraInfoTable:
 
     val name = text("name")
         .bindTo(UserExtraInfoModel::name)
+
+    val image = text("img_url")
+        .bindTo(UserExtraInfoModel::image)
 
     val phone = long("phone")
         .bindTo(UserExtraInfoModel::phone)
@@ -106,6 +110,8 @@ object GoodsTable:
         .bindTo(GoodsModel::goodsId)
     val name = text("name")
         .bindTo(GoodsModel::name)
+    val image = text("img_url")
+        .bindTo(UserExtraInfoModel::image)
 
     val publishDate = timestamp("publish_date")
         .bindTo(GoodsModel::publishDate)
@@ -125,6 +131,20 @@ object GoodsTable:
 
     val tags = list("tags"){it}
         .bindTo(GoodsModel::tags)
+}
+
+object VerifyRequestTable :
+    Table<VerifyRequestModel>("verify_request") {
+
+    val userId = long("user_id")
+        .primaryKey()
+        .bindTo(VerifyRequestModel::userId)
+
+    val desireType = enumOf("desire_type", UserType::valueOf)
+        .bindTo(VerifyRequestModel::desireType)
+
+    val materials = list("materials") { it }
+        .bindTo(VerifyRequestModel::materials)
 }
 
 object GoodsGroupRedirectTable:

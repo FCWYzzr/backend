@@ -1,6 +1,9 @@
 {
     "hashMethod": "md5",
+  "dirs": {
     "resource": "data/",
+    "repo": "repo/"
+  },
     "verification": {
         "expireTime": 5,
         "timeUnit": "MINUTE"

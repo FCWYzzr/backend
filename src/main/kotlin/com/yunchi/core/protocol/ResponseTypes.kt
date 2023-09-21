@@ -16,7 +16,8 @@ typealias SigninResponse = AutoSignInArgument
 @Serializable
 data class UserInfoResponse(
     val name: String,
-    val type: String
+    val type: String,
+    val image: String
 )
 
 @Serializable
@@ -25,15 +26,15 @@ data class GoodsDetail(
     val price: Int,
     val publisherType: UserType,
     val ioType: IOType,
-    val hasIcon: Boolean
+    val image: String
 ){companion object{
-    fun of(row: QueryRowSet, hasIcon: Boolean): GoodsDetail {
+    fun of(row: QueryRowSet): GoodsDetail {
         return GoodsDetail(
             row[GoodsTable.name]!!,
             row[GoodsTable.money]!!,
             row[GoodsTable.publisherType]!!,
             row[GoodsTable.ioType]!!,
-            hasIcon
+            row[GoodsTable.image]!!
         )
     }
 }}
@@ -64,6 +65,11 @@ data class GoodsResponse(
 @Serializable
 data class SellerResponse(
     val sellerId: Long
+)
+
+@Serializable
+data class UrlResponse(
+    val url: String
 )
 
 @Serializable

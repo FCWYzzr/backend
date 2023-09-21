@@ -30,18 +30,24 @@ data class VisitorSignInArgument(
 
 @Serializable
 data class VisitorUpgradeArgument(
-    val userId: Long,
-    val code: String,
+    val username: String,
     val password: String,
+    val contact: String,
+    val type: ContactType,
+    val code: String
+)
+
+@Serializable
+data class ContactVerifyRequestArgument(
+    val username: String,
     val contact: String,
     val type: ContactType
 )
 
 @Serializable
-data class VerifyRequestArgument(
-    val username: String,
-    val contact: String,
-    val type: ContactType
+data class IdentityVerifyRequestArgument(
+    val desireType: UserType,
+    val materials: String
 )
 
 @Serializable
@@ -78,6 +84,7 @@ data class PublishArgument(
     val validDate: Long,
     val money: Int,
     val keywords: String,
+    val goodsImage: String,
 
     val goodsType: GoodsType,
     val ioType: IOType,

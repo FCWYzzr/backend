@@ -1,13 +1,9 @@
 package com.yunchi.core.user_system
 
-import com.yunchi.Config
 import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.utilities.*
-import com.yunchi.dirIfNotExist
-import com.yunchi.fileIfNotExist
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import org.ktorm.dsl.delete
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.insert
@@ -43,11 +39,17 @@ fun DelegatedRouterBuilder.configureSignUp() {
         )
     }
 
-    post("/visitor/upgrade") {
+    post("/visitor/upgrade", setOf("X-User-Id", "X-User-Code")) {
         val info = call.receiveJson<VisitorUpgradeArgument>()
             ?: return@post call.respondErr("请求参数格式错误")
 
-        if (!checkCode(info.userId, info.code))
+        val userId = call.request.headers["X-User-Id"]!!
+            .toLongOrNull()
+            ?: return@post call.respondErr("用户Id格式错误")
+
+        val code = call.request.headers["X-User-Code"]!!
+
+        if (!checkCode(userId, code))
             return@post call.respondErr("用户验证失败")
 
         VerifyCode.matchCode(info.contact, info.code)
@@ -61,18 +63,19 @@ fun DelegatedRouterBuilder.configureSignUp() {
                 set(UserIdentityTable.pwd, info.password)
                 set(UserIdentityTable.lastSignin, now)
                 where {
-                    UserIdentityTable.id eq info.userId
+                    UserIdentityTable.id eq userId
                 }
             }
 
         Database
             .update(UserExtraInfoTable) {
+                set(UserExtraInfoTable.name, info.username)
                 if (info.type == ContactType.PHONE)
                     set(UserExtraInfoTable.phone, info.contact.toLong())
                 else
                     set(UserExtraInfoTable.email, info.contact)
                 where {
-                    UserExtraInfoTable.userId eq info.userId
+                    UserExtraInfoTable.userId eq userId
                 }
             }
 
@@ -82,14 +85,14 @@ fun DelegatedRouterBuilder.configureSignUp() {
             }
 
         call.respondJson(
-            SigninResponse(
-                info.userId, hashAutoSignin(info.userId, info.password, now)
+            CodeResponse(
+                hashAutoSignin(userId, info.password, now)
             )
         )
     }
 
     post("/verify"){
-        val (username, contact, type) = call.receiveJson<VerifyRequestArgument>()
+        val (username, contact, type) = call.receiveJson<ContactVerifyRequestArgument>()
             ?: return@post call.respondErr("参数格式错误")
 
         val code = VerifyCode.newCode(contact, type)
@@ -138,21 +141,27 @@ fun DelegatedRouterBuilder.configureSignUp() {
     }
 
     post("/signup/identify", setOf("X-User-Id", "X-User-Code")) {
+        val user = call.request.headers["X-User-Id"]!!
+            .toLongOrNull()
+            ?: return@post call.respondErr("用户Id格式错误")
+
         if (!checkCode(
-                call.request.headers["X-User-Id"]
-                !!.toLongOrNull()
-                    ?: return@post call.respondErr("用户Id格式错误"),
+                user,
                 call.request.headers["X-User-Code"] ?: ""
             )
         )
             return@post call.respondErr("用户身份验证失败")
 
         // todo human check
-        call.receiveStream().use {
-            dirIfNotExist(Config.resource + "/user")
-            fileIfNotExist(Config.resource + "/user" + "/${call.request.headers["X-User-Id"]}.jpg")
-                .outputStream().use(it::transferTo)
-        }
+        val req = call.receiveJson<IdentityVerifyRequestArgument>()
+            ?: return@post call.respondErr("请求参数格式错误")
+
+        Database
+            .insert(VerifyRequestTable) {
+                set(it.userId, user)
+                set(it.desireType, req.desireType)
+                set(it.materials, req.materials.split(','))
+            }
         call.respondOK()
     }
 }

@@ -17,9 +17,6 @@ object Project{
     val config: Config
         get() = _config
     val randGen = Random(System.currentTimeMillis())
-    val supportThirdParties = setOf(
-        "WeChat"
-    )
     val numberTemplate = Regex("[0-9]+")
     val phoneTemplate = Regex("[0-9]{11}")
     val emailTemplate = Regex(
@@ -55,7 +52,10 @@ object Project{
     private fun defaultConfig(){
         _config = Config(
             "md5",
-            "data/",
+            Config.DirConfig(
+                "data/",
+                "repo/"
+            ),
             Config.VerificationConfig(
                 5,
                 TimeUnit.MINUTE
@@ -89,15 +89,15 @@ object Project{
                 )
             )
         )
-
-        dirIfNotExist("./data/")
-        fileIfNotExist("data/colleges.csv")
     }
 
     private fun loadConfig(){
         val content = configFile.readText(Charsets.UTF_8)
         if (content.isNotBlank())
             _config = Json.decodeFromString(content)
+
+        dirIfNotExist(config.dirs.resource)
+        dirIfNotExist(config.dirs.repo)
     }
 
     private fun loadDrivers(){
@@ -123,7 +123,7 @@ object Project{
     @Serializable
     data class Config(
         val hashMethod: String,
-        val resource: String,
+        val dirs: DirConfig,
         val verification: VerificationConfig,
         val smtp: SMTPConfig,
         val server: ServerConfig,
@@ -131,6 +131,11 @@ object Project{
         val adminConfig: AdminConfig,
         val thirdParty: ThirdPartyConfig
     ){
+        @Serializable
+        data class DirConfig(
+            val resource: String,
+            val repo: String
+        )
         @Serializable
         data class VerificationConfig(
             val expireTime: Long,
@@ -201,14 +206,5 @@ fun dirIfNotExist(path: String): File {
 private fun Connection.nopClose(): Connection {
     return object: Connection by this{
         override fun close() {}
-    }
-}
-
-fun Random.nextAlNum(): Char{
-    return when(nextInt(0, 4)){
-        0 -> nextInt('a'.code, 'z'.code).toChar()
-        1 -> nextInt('A'.code, 'Z'.code).toChar()
-        2 -> nextInt('0'.code, '9'.code).toChar()
-        else -> '_'
     }
 }

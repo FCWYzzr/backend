@@ -14,11 +14,11 @@ fun Application.configurePing() {
         get("/ping") {
             call.respond(HttpStatusCode.OK)
         }
-        openAPI("/api", swaggerFile = Config.resource + "api.json")
+        openAPI("/api", swaggerFile = Config.dirs.resource + "API.json")
         get("/api-group"){
             call.respondText(Files.readString(
                 Path.of(
-                    Config.resource + "api-group.html"
+                    Config.dirs.resource + "api-group.html"
                 )
             ), ContentType.parse("text/html"))
         }

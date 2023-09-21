@@ -315,7 +315,7 @@
         }
       }
     },
-    "/userinfo": {
+    "/user/info": {
       "get": {
         "tags": [
           "user-system"
@@ -367,6 +367,10 @@
                             "COMPANY"
                           ],
                           "description": "user type, one of UNKNOWN, STUDENT and COMPANY"
+                        },
+                        "image": {
+                          "type": "string",
+                          "description": "user icon url, can be empty"
                         }
                       }
                     }
@@ -559,85 +563,7 @@
         }
       }
     },
-    "/goods/icon": {
-      "get": {
-        "description": "get goods icon",
-        "tags": [
-          "goods-system"
-        ],
-        "parameters": [{
-          "in": "path",
-          "name": "goodsId",
-          "required": true,
-          "schema": {
-            "type": "integer",
-            "description": "goods id"
-          }
-        }],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "image/png": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "invalid query"
-          },
-          "404": {
-            "description": "goods not found"
-          }
-        }
-      },
-      "put": {
-        "description": "upload goods icon",
-        "tags": [
-          "goods-system"
-        ],
-        "parameters": [{
-          "in": "header",
-          "name": "X-Goods-Id",
-          "required": true,
-          "schema": {
-            "type": "integer",
-            "description": "goods id"
-          }
-        },{
-          "in": "header",
-          "name": "X-User-Id",
-          "required": true,
-          "schema": {
-            "type": "string",
-            "description": "user id"
-          }
-        },{
-          "in": "header",
-          "name": "X-User-Code",
-          "required": true,
-          "schema": {
-            "type": "string",
-            "description": "user code"
-          }
-        }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "image/png": {}
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/query/info": {
+    "/goods/info": {
       "get": {
         "tags": [
           "goods-system"
@@ -692,6 +618,10 @@
                           "ioType": {
                             "description": "one of ( SELLING, ACQUISITION )",
                             "type": "string"
+                          },
+                          "image": {
+                            "type": "string",
+                            "description": "image url, can be empty"
                           }
                         }
                       }
@@ -946,6 +876,136 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/image": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "image id"
+            }
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "uploader id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/*": {}
+            }
+          },
+          "400": {
+            "description": "invalid query"
+          },
+          "404": {
+            "description": "no such image"
+          }
+        }
+      },
+      "put": {
+        "description": "add new icon",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-Id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "user id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-User-Code",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "user code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "status code"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "null if code is 200"
+                    },
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "image url (relative)"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-User-Id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "user id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-User-Code",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "user code"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "image id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }

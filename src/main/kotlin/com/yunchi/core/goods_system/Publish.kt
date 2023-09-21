@@ -2,25 +2,19 @@
 
 package com.yunchi.core.goods_system
 
-import com.yunchi.Config
 import com.yunchi.core.protocol.*
 import com.yunchi.core.protocol.orm.*
 import com.yunchi.core.user_system.checkCode
 import com.yunchi.core.utilities.DelegatedRouterBuilder
 import com.yunchi.core.utilities.genSnowflake
-import com.yunchi.dirIfNotExist
-import com.yunchi.fileIfNotExist
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.ktorm.dsl.*
-import java.io.File
 import java.time.Instant
 
 fun DelegatedRouterBuilder.configurePublish() {
@@ -64,7 +58,10 @@ fun DelegatedRouterBuilder.configurePublish() {
                 set(it.publisherId, userId)
                 set(it.publisherType, publisherType)
                 set(it.tags, tags)
+
+                set(it.image, publish.goodsImage)
             }
+
         CoroutineScope(Dispatchers.IO).launch{
             Database.batchInsert(GoodsAttributeTable){
                 for (attr in keywords)
@@ -120,42 +117,6 @@ fun DelegatedRouterBuilder.configurePublish() {
 
         call.respondJson(GoodsResponse(goodId))
     }
-    put("/goods/icon", setOf("X-Goods-Id", "X-User-Id", "X-User-Code")) {
-        val user = call.request.headers["X-User-Id"]!!.toLongOrNull() ?: return@put call.respondErr(
-            "X-User-Id格式错误"
-        )
-        val code = call.request.headers["X-User-Code"]!!
-        val goodsId = call.request.headers["X-Goods-Id"]!!
-            .toLongOrNull()
-            ?: return@put call.respondErr("X-Goods-Id格式错误")
-
-        val seller = Database
-            .from(GoodsTable)
-            .select()
-            .where(GoodsTable.id eq goodsId)
-            .mapNotNull { it[GoodsTable.publisherId] }
-            .firstOrNull()
-            ?: return@put call.respondErr("商品不存在")
-
-        if (seller != user)
-            return@put call.respondErr("没有操作权限")
-
-        if (!checkCode(user, code))
-            return@put call.respondErr("用户认证失败")
-
-        dirIfNotExist("${Config.resource}goods/icon/")
-
-        val os = fileIfNotExist("${Config.resource}goods/icon/$goodsId.png")
-            .outputStream()
-
-        withContext(Dispatchers.IO) {
-            call.receiveStream().transferTo(os)
-        }
-
-        os.close()
-
-        call.respondOK()
-    }
 
     delete("/goods/remove", setOf("X-User-Id", "X-User-Code")) {
         val user = call.request.headers["X-User-Id"]
@@ -170,9 +131,15 @@ fun DelegatedRouterBuilder.configurePublish() {
         val goodsId = call.receiveJson<GoodsRemoveArgument>()?.goodsId
             ?: return@delete call.respondErr("请求参数格式错误")
 
-        val file = File("${Config.resource}goods/icon/$goodsId.png")
-        if(file.exists())
-            file.delete()
+        val img = Database
+            .from(GoodsTable)
+            .select(GoodsTable.image)
+            .where {
+                GoodsTable.id eq goodsId
+            }.map {
+                it[GoodsTable.image]!!
+            }.firstOrNull() ?: return@delete call.respondErr("商品不存在")
+
 
         Database
             .delete(GoodsTable){
@@ -211,7 +178,7 @@ fun DelegatedRouterBuilder.configurePublish() {
                     set(GroupReferenceTable.reference, count - 1)
                     where { GroupReferenceTable.groupId eq group }
                 }
-            return@delete
+            return@delete call.respondJson(UrlResponse(img))
         }
 
         Database
@@ -233,7 +200,7 @@ fun DelegatedRouterBuilder.configurePublish() {
             RecordGroup.remove(group)
         }
 
-        call.respondOK()
+        call.respondJson(UrlResponse(img))
     }
     delete("/goods/complete"){
         // todo

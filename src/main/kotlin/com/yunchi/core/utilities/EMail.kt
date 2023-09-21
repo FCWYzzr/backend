@@ -7,12 +7,8 @@ import kotlinx.coroutines.launch
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalTime
-import java.util.Properties
-import javax.mail.Authenticator
-import javax.mail.Message
-import javax.mail.PasswordAuthentication
-import javax.mail.Session
-import javax.mail.Transport
+import java.util.*
+import javax.mail.*
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeBodyPart
 import javax.mail.internet.MimeMessage
@@ -33,7 +29,7 @@ object EMailVerifier{
     """.trimIndent()
 
     private val pattern = Files.readString(Path.of(
-        Config.resource + Config.smtp.htmlPattern
+        Config.dirs.resource + Config.smtp.htmlPattern
     )).replace("[email]", Config.smtp.mail)
         .replace("[expireTime]", Config.verification.expireTime.toString())
         .replace("[timeUnit]", Config.verification.timeUnit.literal)
